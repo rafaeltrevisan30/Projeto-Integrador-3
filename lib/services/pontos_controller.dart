@@ -1,32 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../data/ambientes_mock.dart';
+import 'dart:async';
+import '../models/ambiente.dart';
 
 class PontosController extends ChangeNotifier {
   double lati = 0.0;
   double long = 0.0;
   String erro = '';
   bool loading = true;
+  StreamSubscription<Position>? _positionStream;
 
   PontosController() {
     getPosicao();
+    monitoramento();
   }
 
-Future<void> getPosicao() async {
-  loading = true;
-  notifyListeners();
-
-  try {
-    Position posicao = await _posicaoAtual();
-    lati = posicao.latitude;
-    long = posicao.longitude;
-  } catch (e) {
-    erro = 'Erro ao obter localização';
+  @override
+  void dispose() {
+    _positionStream?.cancel();
+    super.dispose();
   }
 
-  loading = false;
-  notifyListeners();
-}
+  Future<void> getPosicao() async {
+    loading = true;
+    notifyListeners();
+
+    try {
+      Position posicao = await _posicaoAtual();
+      lati = posicao.latitude;
+      long = posicao.longitude;
+    } catch (e) {
+      erro = 'Erro ao obter localização';
+    }
+
+    loading = false;
+    notifyListeners();
+  }
 
   Future<Position> _posicaoAtual() async {
     LocationPermission permissao;
@@ -58,11 +68,17 @@ Future<void> getPosicao() async {
     );
   }
 
+  void onEntrouNaArea(Ambiente amb) {
+    print("Entrou em ${amb.nome}");    //substituir por disparada de gameplay
+  }
+
+  void onSaiuDaArea() {
+    print("Saiu da área");
+  }
+
   String? pontoAtual;
 
   void verificarProximidade() {
-    bool dentroDeAlgum = false;
-
     for (var amb in ambientesMock) {
       double distancia = Geolocator.distanceBetween(
         lati,
@@ -71,19 +87,20 @@ Future<void> getPosicao() async {
         amb.longitude,
       );
 
-      if (distancia < amb.raioMetros) {
-        dentroDeAlgum = true;
-
+      if (distancia <= amb.raioMetros) {
         if (pontoAtual != amb.id) {
           pontoAtual = amb.id;
+
+          onEntrouNaArea(amb);
+
           notifyListeners();
         }
-
         return;
       }
     }
 
-    if (!dentroDeAlgum && pontoAtual != null) {
+    if (pontoAtual != null) {
+      onSaiuDaArea();
       pontoAtual = null;
       notifyListeners();
     }
@@ -94,6 +111,16 @@ Future<void> getPosicao() async {
     long = novaLong;
 
     verificarProximidade();
-    notifyListeners();
+  }
+
+  void monitoramento() {
+    _positionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+      ),
+    ).listen((Position position) {
+      atualizarLocalizacao(position.latitude, position.longitude);
+    });
   }
 }

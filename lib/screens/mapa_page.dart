@@ -32,13 +32,16 @@ class _MapaPageState extends State<MapaPage> {
     }
 
     final posicaoUsuario = LatLng(controller.lati, controller.long);
+    mapController?.animateCamera(
+      CameraUpdate.newLatLng(posicaoUsuario),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mapa')),
       body: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: posicaoUsuario,
-          zoom: 17,
+          zoom: 18,
         ),
         onMapCreated: (mapCtrl) {
           mapController = mapCtrl;
@@ -67,18 +70,20 @@ class _MapaPageState extends State<MapaPage> {
               );
             }),
           },
-            circles: ambientesMock.map((amb) {
-              return Circle(
-                circleId: CircleId(amb.id),
-                center: LatLng(amb.latitude, amb.longitude),
-                radius: amb.raioMetros,
-                strokeWidth: 2,
-                strokeColor: controller.pontoAtual == amb.id
-                    ? Colors.green // 👈 está dentro
-                    : Colors.red,
-                fillColor: Colors.transparent,
-              );
-            }).toSet(),
+          circles: ambientesMock.map((amb) {
+          final dentro = controller.pontoAtual == amb.id;
+
+          return Circle(
+            circleId: CircleId(amb.id),
+            center: LatLng(amb.latitude, amb.longitude),
+            radius: amb.raioMetros,
+            strokeWidth: 2,
+            strokeColor: dentro ? Colors.green : Colors.red,
+            fillColor: dentro
+                ? Colors.green.withOpacity(0.2)
+                : Colors.red.withOpacity(0.1),
+          );
+        }).toSet(),
       ),
     );
   }
