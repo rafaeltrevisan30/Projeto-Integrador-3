@@ -69,11 +69,11 @@ class PontosController extends ChangeNotifier {
   }
 
   void onEntrouNaArea(Ambiente amb) {
-    print("Entrou em ${amb.nome}");    //substituir por disparada de gameplay
+    Text("Entrou em ${amb.nome}");    //substituir por disparada de gameplay
   }
 
   void onSaiuDaArea() {
-    print("Saiu da área");
+    Text("Saiu da área");
   }
 
   String? pontoAtual;

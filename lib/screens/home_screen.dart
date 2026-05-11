@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_integrador_3/screens/mapa_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,44 +14,51 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController nomeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void teste() {
-    Text('hey');
-  }
 
-/*  void entrar() async {
-    if (_formKey.currentState!.validate()) {
-      final nome = nomeController.text;
+  void entrar() async {
+  if (_formKey.currentState!.validate()) {
 
-      final userCredential =
-          await FirebaseAuth.instance.signInAnonymously();
+    final nome = nomeController.text;
 
-      final uid = userCredential.user!.uid;
+    final userCredential =
+        await FirebaseAuth.instance.signInAnonymously();
 
-      final doc = await FirebaseFirestore.instance
+    final uid = userCredential.user!.uid;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('jogadores')
+        .doc(uid)
+        .get();
+
+    if (!doc.exists) {
+      await FirebaseFirestore.instance
           .collection('jogadores')
           .doc(uid)
-          .get();
+          .set({
+            'nome': nome,
+            'xp': 0,
+            'level': 1,
 
-      if (!doc.exists) {
-        await FirebaseFirestore.instance
-            .collection('jogadores')
-            .doc(uid)
-            .set({
-          'nome': nome,
-          'nivel': 1,
-          'xp': 0,
-        });
-      }
+            'progresso': {
+              'h15': 0,
+              'biblioteca': 0,
+              'refeitorio': 0,
+              'manacas': 0,
+              'capela': 0,
+            },
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const MapaPage(),
-        ),
-      );
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MapaPage(),
+      ),
+    );
   }
-  */
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: FilledButton.icon(
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Entrar no jogo'),
-                  onPressed: teste//entrar,
+                  onPressed: entrar,
                 ),
               ),
             ],

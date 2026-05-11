@@ -80,8 +80,8 @@ class _MapaPageState extends State<MapaPage> {
             strokeWidth: 2,
             strokeColor: dentro ? Colors.green : Colors.red,
             fillColor: dentro
-                ? Colors.green.withOpacity(0.2)
-                : Colors.red.withOpacity(0.1),
+                ? Colors.green.withValues(alpha: 0.2)
+                : Colors.red.withValues(alpha: 0.1),
           );
         }).toSet(),
       ),
