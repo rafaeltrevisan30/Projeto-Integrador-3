@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'enemy.dart';
 import 'quiz_question.dart';
 
+// aqui temos as descrições de cada região e os quizzes que elas vão possuir,
+// além dos inimigos de cada uma delas.
 class GameRegion {
   final String name;
   final String description;
@@ -45,7 +47,12 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é uma variável em programação?',
-            options: ['Um erro no código', 'Espaço para armazenar dados', 'Um tipo de loop', 'Uma função'],
+            options: [
+              'Um erro no código',
+              'Espaço para armazenar dados',
+              'Um tipo de loop',
+              'Uma função',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
@@ -55,7 +62,12 @@ List<GameRegion> get gameRegions => [
           ),
           QuizQuestion(
             question: 'O que faz um loop "for"?',
-            options: ['Para o programa', 'Repete um bloco de código', 'Declara uma variável', 'Chama uma função'],
+            options: [
+              'Para o programa',
+              'Repete um bloco de código',
+              'Declara uma variável',
+              'Chama uma função',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -69,7 +81,12 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que causa um NullPointerException?',
-            options: ['Variável não declarada', 'Acessar objeto nulo', 'Loop infinito', 'Erro de sintaxe'],
+            options: [
+              'Variável não declarada',
+              'Acessar objeto nulo',
+              'Loop infinito',
+              'Erro de sintaxe',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
@@ -79,7 +96,12 @@ List<GameRegion> get gameRegions => [
           ),
           QuizQuestion(
             question: 'O que é uma função em programação?',
-            options: ['Tipo de variável', 'Bloco de código reutilizável', 'Estrutura de dados', 'Operador lógico'],
+            options: [
+              'Tipo de variável',
+              'Bloco de código reutilizável',
+              'Estrutura de dados',
+              'Operador lógico',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -114,12 +136,22 @@ List<GameRegion> get gameRegions => [
           ),
           QuizQuestion(
             question: 'FIFO é o princípio de qual estrutura de dados?',
-            options: ['Pilha (Stack)', 'Fila (Queue)', 'Árvore Binária', 'Grafo'],
+            options: [
+              'Pilha (Stack)',
+              'Fila (Queue)',
+              'Árvore Binária',
+              'Grafo',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que é uma lista encadeada?',
-            options: ['Array com índice', 'Nós conectados por ponteiros', 'Fila circular', 'Hash table'],
+            options: [
+              'Array com índice',
+              'Nós conectados por ponteiros',
+              'Fila circular',
+              'Hash table',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -133,16 +165,27 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é recursão em programação?',
-            options: ['Um tipo de loop externo', 'Função que chama a si mesma', 'Herança em OOP', 'Padrão de projeto'],
+            options: [
+              'Um tipo de loop externo',
+              'Função que chama a si mesma',
+              'Herança em OOP',
+              'Padrão de projeto',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que é necessário para evitar recursão infinita?',
-            options: ['Mais memória RAM', 'Um caso base (base case)', 'Usar variáveis globais', 'Remover o retorno'],
+            options: [
+              'Mais memória RAM',
+              'Um caso base (base case)',
+              'Usar variáveis globais',
+              'Remover o retorno',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
-            question: 'Qual estrutura de dados é usada implicitamente na recursão?',
+            question:
+                'Qual estrutura de dados é usada implicitamente na recursão?',
             options: ['Fila', 'Heap', 'Pilha (Stack)', 'Grafo'],
             correctIndex: 2,
           ),
@@ -173,17 +216,28 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é SQL Injection?',
-            options: ['Erro de compilação SQL', 'Ataque via inputs maliciosos em queries', 'Tipo de JOIN avançado', 'Índice de tabela corrompido'],
+            options: [
+              'Erro de compilação SQL',
+              'Ataque via inputs maliciosos em queries',
+              'Tipo de JOIN avançado',
+              'Índice de tabela corrompido',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
-            question: 'Qual comando SQL remove todos os dados sem apagar a tabela?',
+            question:
+                'Qual comando SQL remove todos os dados sem apagar a tabela?',
             options: ['DELETE', 'DROP TABLE', 'TRUNCATE', 'REMOVE ALL'],
             correctIndex: 2,
           ),
           QuizQuestion(
             question: 'O que faz o comando JOIN em SQL?',
-            options: ['Divide tabelas em partes', 'Combina linhas de tabelas relacionadas', 'Cria novos índices', 'Ordena resultados automaticamente'],
+            options: [
+              'Divide tabelas em partes',
+              'Combina linhas de tabelas relacionadas',
+              'Cria novos índices',
+              'Ordena resultados automaticamente',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -197,17 +251,32 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é um DeadLock em banco de dados?',
-            options: ['Erro de sintaxe SQL', 'Processos bloqueados esperando recursos mútuos', 'Timeout de conexão TCP', 'Índice duplicado'],
+            options: [
+              'Erro de sintaxe SQL',
+              'Processos bloqueados esperando recursos mútuos',
+              'Timeout de conexão TCP',
+              'Índice duplicado',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que significa ACID em banco de dados?',
-            options: ['Array, Class, Interface, Data', 'Atomicity, Consistency, Isolation, Durability', 'Access, Create, Index, Delete', 'Async, Cache, Integrity, Data'],
+            options: [
+              'Array, Class, Interface, Data',
+              'Atomicity, Consistency, Isolation, Durability',
+              'Access, Create, Index, Delete',
+              'Async, Cache, Integrity, Data',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que é uma chave primária (PRIMARY KEY)?',
-            options: ['Senha do banco de dados', 'Identificador único de cada registro', 'Índice de performance', 'Relacionamento entre tabelas'],
+            options: [
+              'Senha do banco de dados',
+              'Identificador único de cada registro',
+              'Índice de performance',
+              'Relacionamento entre tabelas',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -237,17 +306,32 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é o protocolo HTTP?',
-            options: ['Sistema de arquivos distribuído', 'Protocolo de transferência de hipertexto', 'Linguagem de marcação web', 'Banco de dados em rede'],
+            options: [
+              'Sistema de arquivos distribuído',
+              'Protocolo de transferência de hipertexto',
+              'Linguagem de marcação web',
+              'Banco de dados em rede',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'Qual a principal diferença entre TCP e UDP?',
-            options: ['TCP é mais rápido que UDP', 'TCP garante entrega dos dados, UDP não', 'UDP é mais seguro que TCP', 'Não há diferença prática'],
+            options: [
+              'TCP é mais rápido que UDP',
+              'TCP garante entrega dos dados, UDP não',
+              'UDP é mais seguro que TCP',
+              'Não há diferença prática',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que é uma API REST?',
-            options: ['Banco de dados relacional', 'Interface de programação via HTTP/HTTPS', 'Framework de frontend', 'Sistema operacional distribuído'],
+            options: [
+              'Banco de dados relacional',
+              'Interface de programação via HTTP/HTTPS',
+              'Framework de frontend',
+              'Sistema operacional distribuído',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -261,17 +345,32 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é criptografia simétrica?',
-            options: ['Mesma chave para cifrar e decifrar', 'Chaves diferentes para cifrar e decifrar', 'Sem uso de chaves', 'Hash unidirecional'],
+            options: [
+              'Mesma chave para cifrar e decifrar',
+              'Chaves diferentes para cifrar e decifrar',
+              'Sem uso de chaves',
+              'Hash unidirecional',
+            ],
             correctIndex: 0,
           ),
           QuizQuestion(
             question: 'O que significa HTTPS na URL?',
-            options: ['HTTP mais rápido', 'HTTP com camada de segurança SSL/TLS', 'HTTP sem cookies', 'HTTP com cache obrigatório'],
+            options: [
+              'HTTP mais rápido',
+              'HTTP com camada de segurança SSL/TLS',
+              'HTTP sem cookies',
+              'HTTP com cache obrigatório',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que é um ataque DDoS?',
-            options: ['Roubo de senha por força bruta', 'Sobrecarga de sistema com requisições massivas', 'Injeção de código malicioso', 'Intercepção de tráfego de rede'],
+            options: [
+              'Roubo de senha por força bruta',
+              'Sobrecarga de sistema com requisições massivas',
+              'Injeção de código malicioso',
+              'Intercepção de tráfego de rede',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -301,17 +400,32 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é Machine Learning?',
-            options: ['Programação manual de todas as regras', 'Sistema que aprende padrões a partir de dados', 'Banco de dados inteligente', 'Framework de desenvolvimento web'],
+            options: [
+              'Programação manual de todas as regras',
+              'Sistema que aprende padrões a partir de dados',
+              'Banco de dados inteligente',
+              'Framework de desenvolvimento web',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que é overfitting em ML?',
-            options: ['Modelo muito simples para os dados', 'Modelo excessivamente ajustado ao treino perdendo generalização', 'Falta de dados de treinamento', 'Erro de hardware na GPU'],
+            options: [
+              'Modelo muito simples para os dados',
+              'Modelo excessivamente ajustado ao treino perdendo generalização',
+              'Falta de dados de treinamento',
+              'Erro de hardware na GPU',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que faz uma função de ativação em redes neurais?',
-            options: ['Inicia o processo de treinamento', 'Introduz não-linearidade ao modelo', 'Reduz o número de parâmetros', 'Normaliza os dados de entrada'],
+            options: [
+              'Inicia o processo de treinamento',
+              'Introduz não-linearidade ao modelo',
+              'Reduz o número de parâmetros',
+              'Normaliza os dados de entrada',
+            ],
             correctIndex: 1,
           ),
         ],
@@ -325,22 +439,42 @@ List<GameRegion> get gameRegions => [
         questions: const [
           QuizQuestion(
             question: 'O que é um Transformer em IA?',
-            options: ['Tipo de robô autônomo', 'Arquitetura com mecanismo de atenção (attention)', 'Framework de treinamento de modelos', 'Dataset de grande escala'],
+            options: [
+              'Tipo de robô autônomo',
+              'Arquitetura com mecanismo de atenção (attention)',
+              'Framework de treinamento de modelos',
+              'Dataset de grande escala',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que significa GPT (como no ChatGPT)?',
-            options: ['General Program Tool', 'Generative Pre-trained Transformer', 'Global Processing Technology', 'Guided Pattern Training'],
+            options: [
+              'General Program Tool',
+              'Generative Pre-trained Transformer',
+              'Global Processing Technology',
+              'Guided Pattern Training',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'O que é Reinforcement Learning?',
-            options: ['Aprendizado com dados rotulados', 'Aprender por meio de recompensas e punições', 'Transfer learning de outro modelo', 'Aprendizado não supervisionado por clusters'],
+            options: [
+              'Aprendizado com dados rotulados',
+              'Aprender por meio de recompensas e punições',
+              'Transfer learning de outro modelo',
+              'Aprendizado não supervisionado por clusters',
+            ],
             correctIndex: 1,
           ),
           QuizQuestion(
             question: 'Qual o principal objetivo do Projeto Integrador?',
-            options: ['Reproduzir um sistema existente', 'Integrar conhecimentos em uma solução real e criativa', 'Decorar conceitos teóricos', 'Fazer o menor esforço possível'],
+            options: [
+              'Reproduzir um sistema existente',
+              'Integrar conhecimentos em uma solução real e criativa',
+              'Decorar conceitos teóricos',
+              'Fazer o menor esforço possível',
+            ],
             correctIndex: 1,
           ),
         ],

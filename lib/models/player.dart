@@ -5,7 +5,7 @@ class Player {
   int xp;
   int level;
   int currentRegion;
-
+  // aqui temos as infos do jogador, como nome, hp, xp, level e região atual
   Player({
     required this.name,
     this.hp = 100,

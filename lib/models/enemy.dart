@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'quiz_question.dart';
 
+// aqui temos as caracteristicas dos inimigos
 class Enemy {
   final String name;
   int hp;
@@ -20,7 +21,8 @@ class Enemy {
     required this.questions,
   }) : hp = maxHp;
 
-  QuizQuestion get currentQuestion => questions[_questionIndex % questions.length];
+  QuizQuestion get currentQuestion =>
+      questions[_questionIndex % questions.length];
 
   void nextQuestion() => _questionIndex++;
 
