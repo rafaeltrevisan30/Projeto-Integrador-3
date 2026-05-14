@@ -8,10 +8,11 @@ import '../theme/game_theme.dart';
 import 'game_screen.dart';
 import 'hero_screen.dart';
 import 'missions_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapaGameScreen extends StatefulWidget {
-  final String playerName;
-  const MapaGameScreen({super.key, required this.playerName});
+  const MapaGameScreen({super.key});
 
   @override
   State<MapaGameScreen> createState() => _MapaGameScreenState();
@@ -22,6 +23,7 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
   GoogleMapController? _mapController;
   bool _battleBannerDismissed = false;
   String? _lastPontoAtual;
+  final uid = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,7 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
               ),
               const HeroScreen(),
               const MissionsScreen(),
-              _SettingsTab(playerName: widget.playerName),
+              _SettingsTab(),
             ],
           ),
 
@@ -93,7 +95,7 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
       context,
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => GameScreen(playerName: widget.playerName),
+        builder: (_) => const GameScreen(),
       ),
     );
   }
@@ -316,64 +318,108 @@ class _BottomNav extends StatelessWidget {
 // SETTINGS TAB (placeholder)
 // ══════════════════════════════════════════════════════════════════
 class _SettingsTab extends StatelessWidget {
-  final String playerName;
-  const _SettingsTab({required this.playerName});
+  const _SettingsTab();
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            const Text('CONFIGURAÇÕES', style: kTitleStyle),
-            const SizedBox(height: 4),
-            const Divider(color: kGoldDark),
-            const SizedBox(height: 20),
-            _SettingsTile(
-              icon: '🔊',
-              label: 'Sons do Jogo',
-              value: 'Ativado',
-              onTap: () {},
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('jogadores')
+          .doc(uid)
+          .get(),
+
+      builder: (context, snapshot) {
+
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        final data =
+            snapshot.data!.data() as Map<String, dynamic>;
+
+        final playerName = data['nome'] ?? 'Jogador';
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 12),
+                const Text(
+                  'CONFIGURAÇÕES',
+                  style: kTitleStyle,
+                ),
+
+                const SizedBox(height: 4),
+
+                const Divider(color: kGoldDark),
+
+                const SizedBox(height: 20),
+
+                _SettingsTile(
+                  icon: '🔊',
+                  label: 'Sons do Jogo',
+                  value: 'Ativado',
+                  onTap: () {},
+                ),
+
+                _SettingsTile(
+                  icon: '🎵',
+                  label: 'Música de Fundo',
+                  value: 'Ativado',
+                  onTap: () {},
+                ),
+
+                _SettingsTile(
+                  icon: '📍',
+                  label: 'Localização',
+                  value: 'GPS Ativo',
+                  onTap: () {},
+                ),
+
+                const SizedBox(height: 24),
+
+                const Divider(color: kGoldDark),
+
+                const SizedBox(height: 12),
+
+                const Text(
+                  'CONTA',
+                  style: kDimStyle,
+                ),
+
+                const SizedBox(height: 12),
+
+                _SettingsTile(
+                  icon: '🛡️',
+                  label: 'Jogador',
+                  value: playerName,
+                  onTap: () {},
+                ),
+
+                const Spacer(),
+
+                Center(
+                  child: Text(
+                    'PROJETO INTEGRADOR 3  •  PUC CAMPINAS',
+                    style: TextStyle(
+                      color: kGoldDark,
+                      fontSize: 9,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            _SettingsTile(
-              icon: '🎵',
-              label: 'Música de Fundo',
-              value: 'Ativado',
-              onTap: () {},
-            ),
-            _SettingsTile(
-              icon: '📍',
-              label: 'Localização',
-              value: 'GPS Ativo',
-              onTap: () {},
-            ),
-            const SizedBox(height: 24),
-            const Divider(color: kGoldDark),
-            const SizedBox(height: 12),
-            const Text('CONTA', style: kDimStyle),
-            const SizedBox(height: 12),
-            _SettingsTile(
-              icon: '🛡️',
-              label: 'Jogador',
-              value: playerName,
-              onTap: () {},
-            ),
-            const Spacer(),
-            Center(
-              child: Text(
-                'PROJETO INTEGRADOR 3  •  PUC CAMPINAS',
-                style: TextStyle(
-                    color: kGoldDark,
-                    fontSize: 9,
-                    letterSpacing: 2),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -7,8 +7,7 @@ import '../widgets/dpad_widget.dart';
 import '../widgets/action_buttons_widget.dart';
 
 class GameScreen extends StatefulWidget {
-  final String playerName;
-  const GameScreen({super.key, required this.playerName});
+  const GameScreen({super.key});
 
   @override
   State<GameScreen> createState() => _GameScreenState();

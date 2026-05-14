@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/game_theme.dart';
 import 'mapa_game_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,24 +12,57 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _nomeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void _entrar() {
-    if (_formKey.currentState!.validate()) {
-      final nome = _nameController.text.trim();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MapaGameScreen(playerName: nome),
-        ),
-      );
+void entrar() async {
+  if (_formKey.currentState!.validate()) {
+
+    final nome = _nomeController.text;
+
+    final userCredential =
+        await FirebaseAuth.instance.signInAnonymously();
+
+    final uid = userCredential.user!.uid;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('jogadores')
+        .doc(uid)
+        .get();
+
+    if (!doc.exists) {
+      await FirebaseFirestore.instance
+          .collection('jogadores')
+          .doc(uid)
+          .set({
+            'nome': nome,
+            'xp': 0,
+            'level': 1,
+
+            'progresso': {
+              'h15': 0,
+              'biblioteca': 0,
+              'refeitorio': 0,
+              'manacas': 0,
+              'capela': 0,
+            },
+
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MapaGameScreen(),
+      ),
+    );
   }
+}
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _nomeController.dispose();
     super.dispose();
   }
 
@@ -117,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // ── Campo de nome ──────────────────────────────
                   TextFormField(
-                    controller: _nameController,
+                    controller: _nomeController,
                     style: const TextStyle(color: kParchment),
                     cursorColor: kGold,
                     decoration: InputDecoration(
@@ -159,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                       return null;
                     },
-                    onFieldSubmitted: (_) => _entrar(),
+                    onFieldSubmitted: (_) => entrar,
                   ),
 
                   const SizedBox(height: 20),
@@ -168,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: GestureDetector(
-                      onTap: _entrar,
+                      onTap: entrar,
                       child: Container(
                         padding:
                             const EdgeInsets.symmetric(vertical: 16),
