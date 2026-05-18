@@ -1,11 +1,11 @@
 class Ambiente {
+
   final String id;
   final String nome;
   final String descricao;
   final double latitude;
   final double longitude;
   final double raioMetros;
-  final bool desbloqueado;
 
   const Ambiente({
     required this.id,
@@ -14,6 +14,26 @@ class Ambiente {
     required this.latitude,
     required this.longitude,
     required this.raioMetros,
-    this.desbloqueado = false,
-    });
+  });
+
+  factory Ambiente.fromFirestore(
+    Map<String, dynamic> data,
+  ) {
+    return Ambiente(
+
+      id: data['id'] ?? '',
+      nome: data['nome'] ?? '',
+      descricao:
+          data['descricao'] ?? '',
+      latitude:
+          (data['latitude'] ?? 0)
+              .toDouble(),
+      longitude:
+          (data['longitude'] ?? 0)
+              .toDouble(),
+      raioMetros:
+          (data['raioMetros'] ?? 0)
+              .toDouble(),
+    );
+  }
 }
