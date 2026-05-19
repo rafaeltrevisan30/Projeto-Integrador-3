@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../data/ambientes_mock.dart';
-import 'ambiente_detalhes.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/ambiente.dart';
+import 'ambiente_detalhes.dart';
 
 class AmbientesScreen extends StatelessWidget {
 
@@ -9,15 +9,76 @@ class AmbientesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Ambientes do Jogo')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: ambientesMock.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final amb = ambientesMock[index];
-          return _AmbienteCard(ambiente: amb);
+      appBar: AppBar(
+        title: const Text(
+          'Ambientes do Jogo',
+        ),
+      ),
+
+      body: FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('ambientes')
+            .get(),
+
+        builder: (context, snapshot) {
+          if (snapshot.connectionState ==
+              ConnectionState.waiting) {
+
+            return const Center(
+              child:
+                  CircularProgressIndicator(),
+            );
+          }
+
+          if (snapshot.hasError) {
+
+            return const Center(
+              child: Text(
+                'Erro ao carregar ambientes',
+              ),
+            );
+          }
+
+          if (!snapshot.hasData ||
+              snapshot.data!.docs.isEmpty) {
+
+            return const Center(
+              child: Text(
+                'Nenhum ambiente encontrado',
+              ),
+            );
+          }
+
+          final ambientes =
+              snapshot.data!.docs.map((doc) {
+
+            final data =
+                doc.data()
+                    as Map<String, dynamic>;
+
+            return Ambiente.fromFirestore(
+              data,
+            );
+          }).toList();
+
+          return ListView.separated(
+
+            padding:
+                const EdgeInsets.all(16),
+            itemCount: ambientes.length,
+            separatorBuilder:
+                (_, _) =>
+                    const SizedBox(height: 12),
+
+            itemBuilder: (context, index) {
+              final amb = ambientes[index];
+              return _AmbienteCard(
+                ambiente: amb,
+              );
+            },
+          );
         },
       ),
     );
@@ -25,12 +86,16 @@ class AmbientesScreen extends StatelessWidget {
 }
 
 class _AmbienteCard extends StatelessWidget {
+
   final Ambiente ambiente;
 
-  const _AmbienteCard({required this.ambiente});
+  const _AmbienteCard({
+    required this.ambiente,
+  });
 
   @override
   Widget build(BuildContext context) {
+
     return Card(
       child: InkWell(
         onTap: () {
@@ -38,15 +103,21 @@ class _AmbienteCard extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  AmbienteDetalheScreen(ambiente: ambiente),
+                  AmbienteDetalheScreen(
+                ambienteId: ambiente.id,
+              ),
             ),
           );
         },
+
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding:
+              const EdgeInsets.all(16),
           child: Text(
             ambiente.nome,
-            style: const TextStyle(fontSize: 18),
+            style: const TextStyle(
+              fontSize: 18,
+            ),
           ),
         ),
       ),
