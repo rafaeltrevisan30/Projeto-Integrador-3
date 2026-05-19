@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../services/pontos_controller.dart';
-import '../models/ambiente.dart';
 
 
 class MapaPage extends StatefulWidget {
@@ -59,7 +58,7 @@ class _MapaPageState extends State<MapaPage> {
             ),
           ),
 
-          ...ambientesMock.map((amb) {
+          ...controller.ambientes.map((amb) {
               return Marker(
                 markerId: MarkerId(amb.id),
                 position: LatLng(amb.latitude, amb.longitude),
@@ -70,7 +69,7 @@ class _MapaPageState extends State<MapaPage> {
               );
             }),
           },
-          circles: ambientesMock.map((amb) {
+          circles: controller.ambientes.map((amb) {
           final dentro = controller.pontoAtual == amb.id;
 
           return Circle(
