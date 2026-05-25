@@ -60,6 +60,7 @@ class AmbientesScreen extends StatelessWidget {
 
             return Ambiente.fromFirestore(
               data,
+              documentId: doc.id,
             );
           }).toList();
 

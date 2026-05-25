@@ -22,6 +22,7 @@ class GameController extends ChangeNotifier {
   bool? _lastAnswerCorrect;
   bool _leveledUp = false;
   bool _answerLocked = false;
+  bool _singleEncounterMode = false;
 
   GameState get state => _state;
   int get cutsceneLine => _cutsceneLine;
@@ -29,8 +30,10 @@ class GameController extends ChangeNotifier {
   bool? get lastAnswerCorrect => _lastAnswerCorrect;
   bool get leveledUp => _leveledUp;
   bool get answerLocked => _answerLocked;
+  bool get singleEncounterMode => _singleEncounterMode;
 
-  GameRegion get currentRegion => gameRegions[player.currentRegion];
+  GameRegion get currentRegion =>
+      gameRegions[_clampedRegionIndex(player.currentRegion)];
   int get totalRegions => gameRegions.length;
 
   // Mapa de amb.id → índice de região
@@ -42,29 +45,47 @@ class GameController extends ChangeNotifier {
     'capela': 4,
   };
 
-  static int regionIndexForAmbiente(String ambId) =>
-      _ambienteToRegion[ambId] ?? 0;
+  static int? regionIndexForAmbiente(String ambId) => _ambienteToRegion[ambId];
+
+  int _clampedRegionIndex(int index) =>
+      index.clamp(0, gameRegions.length - 1).toInt();
 
   void init(String playerName) {
-    player = Player(name: playerName);
+    player = Player(name: playerName, currentRegion: 1);
     _state = GameState.cutscene;
     _cutsceneLine = 0;
     _currentEnemyIndex = 0;
     _lastAnswerCorrect = null;
     _leveledUp = false;
     _answerLocked = false;
+    _singleEncounterMode = false;
     notifyListeners();
   }
 
   // Chamado quando entra num geofence — preserva HP/XP/level do jogador
   void enterRegion(int regionIndex) {
-    player.currentRegion = regionIndex;
+    player.currentRegion = _clampedRegionIndex(regionIndex);
     _cutsceneLine = 0;
     _currentEnemyIndex = 0;
     _lastAnswerCorrect = null;
     _leveledUp = false;
     _answerLocked = false;
+    _singleEncounterMode = false;
     _state = GameState.cutscene;
+    notifyListeners();
+  }
+
+  void enterEncounter(int regionIndex, int enemyIndex) {
+    player.currentRegion = _clampedRegionIndex(regionIndex);
+    _cutsceneLine = currentRegion.cutsceneLines.length - 1;
+    _currentEnemyIndex = enemyIndex
+        .clamp(0, currentRegion.enemies.length - 1)
+        .toInt();
+    _lastAnswerCorrect = null;
+    _leveledUp = false;
+    _answerLocked = false;
+    _singleEncounterMode = true;
+    _state = GameState.exploring;
     notifyListeners();
   }
 
@@ -85,6 +106,7 @@ class GameController extends ChangeNotifier {
 
   void startBattle() {
     final enemies = currentRegion.enemies;
+    if (enemies.isEmpty) return;
     _currentEnemy = enemies[_currentEnemyIndex % enemies.length].clone();
     _lastAnswerCorrect = null;
     _answerLocked = false;
@@ -93,7 +115,9 @@ class GameController extends ChangeNotifier {
   }
 
   void answerQuestion(int selectedIndex) {
-    if (_currentEnemy == null || _state != GameState.combat || _answerLocked) return;
+    if (_currentEnemy == null || _state != GameState.combat || _answerLocked) {
+      return;
+    }
 
     final question = _currentEnemy!.currentQuestion;
     final isCorrect = selectedIndex == question.correctIndex;
@@ -118,13 +142,21 @@ class GameController extends ChangeNotifier {
       if (_currentEnemy!.isDefeated) {
         final leveled = player.gainXp(_currentEnemy!.xpReward);
         _leveledUp = leveled;
+        if (_singleEncounterMode) {
+          _state = GameState.victory;
+          _answerLocked = false;
+          notifyListeners();
+          return;
+        }
         _currentEnemyIndex++;
 
         final allDefeated = _currentEnemyIndex >= currentRegion.enemies.length;
         if (allDefeated) {
           _currentEnemyIndex = 0;
           final isLastRegion = player.currentRegion >= gameRegions.length - 1;
-          _state = isLastRegion ? GameState.gameComplete : GameState.regionComplete;
+          _state = isLastRegion
+              ? GameState.gameComplete
+              : GameState.regionComplete;
         } else {
           _state = GameState.victory;
         }
@@ -141,11 +173,16 @@ class GameController extends ChangeNotifier {
   void continueAfterVictory() {
     _leveledUp = false;
     _lastAnswerCorrect = null;
+    if (_singleEncounterMode) {
+      _state = GameState.exploring;
+      notifyListeners();
+      return;
+    }
     startBattle();
   }
 
   void moveToNextRegion() {
-    player.currentRegion++;
+    player.currentRegion = _clampedRegionIndex(player.currentRegion + 1);
     _cutsceneLine = 0;
     _currentEnemyIndex = 0;
     _leveledUp = false;

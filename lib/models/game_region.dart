@@ -26,8 +26,9 @@ class GameRegion {
 
 List<GameRegion> get gameRegions => [
   GameRegion(
-    name: 'Refeitório',
-    description: 'O coração do campus. Bugs vagam entre as mesas!',
+    name: 'Praça de Alimentação',
+    description:
+        'O primeiro território dominado. Lacaios vagam entre as mesas!',
     emoji: '🍽️',
     primaryColor: const Color(0xFF4CAF50),
     backgroundColor: const Color(0xFF071A07),

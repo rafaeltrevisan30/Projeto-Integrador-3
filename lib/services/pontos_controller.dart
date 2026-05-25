@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+import '../data/ambientes_mock.dart';
 import '../models/ambiente.dart';
 
 class PontosController extends ChangeNotifier {
@@ -37,11 +38,18 @@ class PontosController extends ChangeNotifier {
 
       ambientes = snapshot.docs.map((doc) {
         final data = doc.data();
-        return Ambiente.fromFirestore(data);
-      }).toList();
-    } catch (e) {
-      erro = 'Erro ao carregar ambientes';
+        return Ambiente.fromFirestore(data, documentId: doc.id);
+      }).where((amb) => amb.id.isNotEmpty).toList();
 
+      if (ambientes.isEmpty) {
+        ambientes = List<Ambiente>.from(ambientesMock);
+        erro = 'Usando pontos locais do campus';
+      } else {
+        erro = '';
+      }
+    } catch (e) {
+      ambientes = List<Ambiente>.from(ambientesMock);
+      erro = 'Erro ao carregar ambientes. Usando pontos locais do campus.';
       debugPrint(e.toString());
     }
 
@@ -57,6 +65,8 @@ class PontosController extends ChangeNotifier {
 
       lati = posicao.latitude;
       long = posicao.longitude;
+      erro = '';
+      verificarProximidade();
     } catch (e) {
       erro = 'Erro ao obter localização';
     }

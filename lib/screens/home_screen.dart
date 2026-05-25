@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../controllers/game_controller.dart';
 import '../theme/game_theme.dart';
 import 'mapa_game_screen.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,235 +16,119 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController nomeController = TextEditingController();
-
-  final _formKey = GlobalKey<FormState>();
-
-  bool carregando = false;
-
-  // ─────────────────────────────────────────────
-  // Cria documento do jogador caso não exista
-  // ─────────────────────────────────────────────
-  Future<void> criarJogadorSeNaoExistir(
-    String uid,
-    String nome,
-  ) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('jogadores')
-        .doc(uid)
-        .get();
-
-    if (!doc.exists) {
-      await FirebaseFirestore.instance
-          .collection('jogadores')
-          .doc(uid)
-          .set({
-            'nome': nome,
-            'xp': 0,
-            'level': 1,
-
-            'progresso': {
-              'h15': 0,
-              'biblioteca': 0,
-              'refeitorio': 0,
-              'manacas': 0,
-              'capela': 0,
-            },
-
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-    }
-  }
-
-  // Login anônimo
-  Future<void> entrarAnonimo() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    setState(() => carregando = true);
-
-    try {
-      final nome = nomeController.text.trim();
-
-      final userCredential =
-          await FirebaseAuth.instance.signInAnonymously();
-
-      final uid = userCredential.user!.uid;
-
-      await criarJogadorSeNaoExistir(uid, nome);
-
-      if (!mounted) return;
-
-      Navigator.push(
   final TextEditingController _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool carregando = false;
 
-  void _entrar() {
-    if (_formKey.currentState!.validate()) {
-      final nome = _nameController.text.trim();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MapaGameScreen(playerName: nome),
-        ),
-      );
-    } catch (e) {
-      debugPrint(e.toString());
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro ao entrar no jogo'),
-        ),
-      );
-    }
-
-    if (mounted) {
-      setState(() => carregando = false);
-    }
-  }
-
-  // Login Google
-  Future<void> entrarComGoogle() async {
-
-  if (!_formKey.currentState!.validate()) {
-    return;
-  }
-
-  try {
-
-    final nome = nomeController.text.trim();
-
-    final GoogleSignIn googleSignIn =
-        GoogleSignIn.instance;
-
-    await googleSignIn.initialize();
-
-    final googleUser =
-        await googleSignIn.authenticate();
-
-    final googleAuth =
-        googleUser.authentication;
-
-    final credential =
-        GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
-    );
-
-    final userCredential =
-        await FirebaseAuth.instance
-            .signInWithCredential(credential);
-
-    final uid = userCredential.user!.uid;
-
-    await criarJogadorSeNaoExistir(
-      uid,
-      nome,
-    );
-
-    if (!mounted) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const MapaPage(),
-      ),
-    );
-
-  } catch (e) {
-
-    debugPrint(
-      'Erro Google Login: $e',
-    );
-  }
-}
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
   }
 
+  // ─────────────────────────────────────────────
+  // Cria documento do jogador caso não exista
+  // ─────────────────────────────────────────────
+  Future<void> _criarJogadorSeNaoExistir(String uid, String nome) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('jogadores')
+        .doc(uid)
+        .get();
+
+    if (!doc.exists) {
+      await FirebaseFirestore.instance.collection('jogadores').doc(uid).set({
+        'nome': nome,
+        'xp': 0,
+        'level': 1,
+        'progresso': {
+          'h15': 0,
+          'biblioteca': 0,
+          'refeitorio': 0,
+          'manacas': 0,
+          'capela': 0,
+        },
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  void _navegarParaMapa(String nome) {
+    if (!mounted) return;
+    context.read<GameController>().init(nome);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => MapaGameScreen(playerName: nome)),
+    );
+  }
+
+  // ─────────────────────────────────────────────
+  // Login anônimo
+  // ─────────────────────────────────────────────
+  Future<void> _entrarAnonimo() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => carregando = true);
+
+    try {
+      final nome = _nameController.text.trim();
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
+      final uid = userCredential.user!.uid;
+      await _criarJogadorSeNaoExistir(uid, nome);
+      _navegarParaMapa(nome);
+    } catch (e) {
+      debugPrint(e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Erro ao entrar no jogo')));
+      }
+    }
+
+    if (mounted) setState(() => carregando = false);
+  }
+
+  // ─────────────────────────────────────────────
+  // Login Google
+  // ─────────────────────────────────────────────
+  Future<void> _entrarComGoogle() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => carregando = true);
+
+    try {
+      final nome = _nameController.text.trim();
+
+      final googleSignIn = GoogleSignIn.instance;
+      await googleSignIn.initialize();
+      final googleUser = await googleSignIn.authenticate();
+      final googleAuth = googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+
+      final uid = userCredential.user!.uid;
+      await _criarJogadorSeNaoExistir(uid, nome);
+      _navegarParaMapa(nome);
+    } catch (e) {
+      debugPrint('Erro Google Login: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao entrar com Google')),
+        );
+      }
+    }
+
+    if (mounted) setState(() => carregando = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Invasão da PUC!'),
-        backgroundColor: Colors.red,
-      ),
-
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-
-        child: Form(
-          key: _formKey,
-
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-
-            children: [
-              const Text(
-                'Bem-vindo ao jogo!',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              TextFormField(
-                controller: nomeController,
-
-                decoration: const InputDecoration(
-                  labelText: 'Seu nome:',
-                  border: OutlineInputBorder(),
-                ),
-
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Digite seu nome';
-                  }
-
-                  if (value.length < 3) {
-                    return 'Nome muito curto';
-                  }
-
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 30),
-              // Botão anônimo
-              SizedBox(
-                width: double.infinity,
-
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.play_arrow),
-
-                  label: carregando
-                      ? const CircularProgressIndicator()
-                      : const Text('Entrar Anônimo'),
-
-                  onPressed:
-                      carregando ? null : entrarAnonimo,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-              // Botão Google
-              SizedBox(
-                width: double.infinity,
-
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.login),
-
-                  label: const Text(
-                    'Entrar com Google',
-                  ),
-
-                  onPressed:
-                      carregando ? null : entrarComGoogle,
-                ),
       backgroundColor: kNavy,
       body: SafeArea(
         child: Center(
@@ -284,9 +169,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Expanded(child: Divider(color: kGoldDark)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text('◆',
-                            style: TextStyle(
-                                color: kGoldDark, fontSize: 14)),
+                        child: Text(
+                          '◆',
+                          style: TextStyle(color: kGoldDark, fontSize: 14),
+                        ),
                       ),
                       const Expanded(child: Divider(color: kGoldDark)),
                     ],
@@ -297,16 +183,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   // ── Preview das regiões ────────────────────────
                   FfCornerBox(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     child: Column(
                       children: [
-                        const Text('REGIÕES DO CAMPUS',
-                            style: kDimStyle),
+                        const Text('REGIÕES DO CAMPUS', style: kDimStyle),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: const [
-                            _RegionBadge('🍽️', 'Refeitório'),
+                            _RegionBadge('🍽️', 'Praça'),
                             _RegionBadge('🏛️', 'H15'),
                             _RegionBadge('🌳', 'Manacas'),
                             _RegionBadge('📚', 'Biblioteca'),
@@ -316,8 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 8),
                         const Text(
                           'Explore a PUC com GPS ativo',
-                          style: TextStyle(
-                              color: kParchmentDim, fontSize: 10),
+                          style: TextStyle(color: kParchmentDim, fontSize: 10),
                         ),
                       ],
                     ),
@@ -333,30 +219,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: InputDecoration(
                       labelText: 'Nome do Herói',
                       labelStyle: const TextStyle(color: kParchmentDim),
-                      prefixIcon: const Icon(Icons.person_outline,
-                          color: kGoldDark),
+                      prefixIcon: const Icon(
+                        Icons.person_outline,
+                        color: kGoldDark,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(4),
-                        borderSide:
-                            const BorderSide(color: kGoldDark, width: 1.5),
+                        borderSide: const BorderSide(
+                          color: kGoldDark,
+                          width: 1.5,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(4),
-                        borderSide:
-                            const BorderSide(color: kGold, width: 2),
+                        borderSide: const BorderSide(color: kGold, width: 2),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(4),
-                        borderSide:
-                            const BorderSide(color: kCrimsonLight),
+                        borderSide: const BorderSide(color: kCrimsonLight),
                       ),
                       focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(4),
                         borderSide: const BorderSide(
-                            color: kCrimsonLight, width: 2),
+                          color: kCrimsonLight,
+                          width: 2,
+                        ),
                       ),
-                      errorStyle:
-                          const TextStyle(color: kCrimsonLight),
+                      errorStyle: const TextStyle(color: kCrimsonLight),
                       filled: true,
                       fillColor: kDarkBlue,
                     ),
@@ -369,36 +258,80 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                       return null;
                     },
-                    onFieldSubmitted: (_) => _entrar(),
+                    onFieldSubmitted: (_) => _entrarAnonimo(),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // ── Botão iniciar ──────────────────────────────
+                  // ── Botão anônimo ──────────────────────────────
                   SizedBox(
                     width: double.infinity,
                     child: GestureDetector(
-                      onTap: _entrar,
+                      onTap: carregando ? null : _entrarAnonimo,
                       child: Container(
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: ffBox(
                           borderColor: kGold,
                           bgColor: kGold.withValues(alpha: 0.1),
                           width: 2,
                         ),
+                        child: carregando
+                            ? const Center(
+                                child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: kGold,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('⚔️', style: TextStyle(fontSize: 20)),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    'INICIAR AVENTURA',
+                                    style: TextStyle(
+                                      color: kGold,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── Botão Google ───────────────────────────────
+                  SizedBox(
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: carregando ? null : _entrarComGoogle,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: ffBox(
+                          borderColor: kGoldDark,
+                          bgColor: kDarkBlue,
+                          width: 1,
+                        ),
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('⚔️', style: TextStyle(fontSize: 20)),
+                            Icon(Icons.login, color: kParchment, size: 18),
                             SizedBox(width: 10),
                             Text(
-                              'INICIAR AVENTURA',
+                              'ENTRAR COM GOOGLE',
                               style: TextStyle(
-                                color: kGold,
-                                fontSize: 15,
+                                color: kParchment,
+                                fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 3,
+                                letterSpacing: 2,
                               ),
                             ),
                           ],
@@ -438,8 +371,7 @@ class _RegionBadge extends StatelessWidget {
       children: [
         Text(emoji, style: const TextStyle(fontSize: 20)),
         const SizedBox(height: 4),
-        Text(label,
-            style: const TextStyle(color: kParchmentDim, fontSize: 8)),
+        Text(label, style: const TextStyle(color: kParchmentDim, fontSize: 8)),
       ],
     );
   }

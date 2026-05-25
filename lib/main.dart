@@ -6,19 +6,19 @@ import 'services/pontos_controller.dart';
 import 'data/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'controllers/game_controller.dart';
+import 'controllers/campaign_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PontosController()),
         ChangeNotifierProvider(create: (_) => GameController()),
+        ChangeNotifierProvider(create: (_) => CampaignController()),
       ],
       child: const RpgMobileApp(),
     ),
