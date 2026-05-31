@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../controllers/campaign_controller.dart';
 import '../controllers/game_controller.dart';
+import '../data/game_assets.dart';
 import '../models/ambiente.dart';
 import '../services/pontos_controller.dart';
 import '../theme/game_theme.dart';
@@ -272,7 +273,7 @@ class _PlayerMarker extends StatelessWidget {
                 border: Border.all(color: hasGps ? kGold : kParchmentDim),
               ),
             ),
-            const Text('🧙', style: TextStyle(fontSize: 24)),
+            Image.asset(GameAssets.viniIdle, fit: BoxFit.contain),
           ],
         ),
       ),

@@ -1,10 +1,14 @@
 import '../models/campaign_scene.dart';
+import 'game_assets.dart';
 
 const int h15RegionIndex = 1;
 
-// Troque estes valores por caminhos de assets quando tiver os portraits finais.
-// Exemplo futuro: const kViniPortrait = 'assets/images/portraits/vini.png';
-const String kViniPortrait = '🧑';
+const String kViniPortrait = GameAssets.viniNeutro;
+const String kViniSorrindoPortrait = GameAssets.viniSorrindo;
+const String kViniDeterminadoPortrait = GameAssets.viniDeterminado;
+const String kViniSurpresoPortrait = GameAssets.viniSurpreso;
+const String kViniBravoPortrait = GameAssets.viniBravo;
+const String kViniPensativoPortrait = GameAssets.viniPensativo;
 const String kMagoPortrait = '🧙‍♂️';
 const String kHamburgaoPortrait = '🍔';
 const String kDuendePortrait = '🟢';
@@ -37,7 +41,7 @@ const List<CampaignScene> campaignScenes = [
     dialogue: [
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSurpresoPortrait,
         side: DialogueSide.left,
         text: 'Meu Deus!!! Onde eu tô?',
       ),
@@ -49,7 +53,7 @@ const List<CampaignScene> campaignScenes = [
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniPensativoPortrait,
         side: DialogueSide.left,
         text: 'Tá... quem é você? E como eu vim parar aqui?',
       ),
@@ -62,7 +66,7 @@ const List<CampaignScene> campaignScenes = [
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniPensativoPortrait,
         side: DialogueSide.left,
         text: 'Isso aqui é algum tipo de sonho?',
       ),
@@ -75,7 +79,7 @@ const List<CampaignScene> campaignScenes = [
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSurpresoPortrait,
         side: DialogueSide.left,
         text: 'Espera. Então aquela explosão foi real?',
       ),
@@ -104,7 +108,7 @@ const List<CampaignScene> campaignScenes = [
     dialogue: [
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSurpresoPortrait,
         side: DialogueSide.left,
         text: 'Então eu tenho que salvar o mundo sozinho??!!!',
       ),
@@ -122,7 +126,7 @@ const List<CampaignScene> campaignScenes = [
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSorrindoPortrait,
         side: DialogueSide.left,
         text: 'Beleza. Se isso virou prova da faculdade, eu vou passar.',
       ),
@@ -341,6 +345,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniSurpresoPortrait,
         text: '...Você é literalmente um hambúrguer?',
       ),
       RegionIntroLine(
@@ -352,6 +357,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniDeterminadoPortrait,
         text:
             'Tá bom. Vou explorar, falar com quem puder e derrubar esse lacaio.',
       ),
@@ -374,6 +380,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniBravoPortrait,
         text:
             'Voltei. E dessa vez eu quero respostas antes do próximo absurdo.',
       ),
@@ -386,6 +393,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniSorrindoPortrait,
         text:
             'Beleza. Corredores, NPCs, monstros e chefe. Nada estranho para hoje.',
       ),
@@ -409,6 +417,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniPensativoPortrait,
         text: 'Tomado por quem? Ou melhor: por que você ainda está aqui?',
       ),
       RegionIntroLine(
@@ -419,6 +428,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniDeterminadoPortrait,
         text: 'Então vou lutar por cada metro até esse Lord aparecer.',
       ),
     ],
@@ -440,6 +450,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniPensativoPortrait,
         text: 'Seguro? Nada no campus está seguro. O que aconteceu aqui?',
       ),
       RegionIntroLine(
@@ -450,6 +461,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniBravoPortrait,
         text: 'Ótimo. Biblioteca de horror. Vou entrar mesmo assim.',
       ),
     ],
@@ -471,6 +483,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniDeterminadoPortrait,
         text: 'Então é lá que isso termina.',
       ),
       RegionIntroLine(
@@ -481,6 +494,7 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
+        portrait: kViniDeterminadoPortrait,
         text: 'Obrigado, Anjo. Vou acabar com tudo isso agora.',
       ),
     ],

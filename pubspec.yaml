@@ -29,4 +29,7 @@ dev_dependencies:
 flutter:
   assets:
     - .env
+    - assets/protagonista.png
     - assets/images/
+    - assets/images/portraits/vini/
+    - assets/images/sprites/player/

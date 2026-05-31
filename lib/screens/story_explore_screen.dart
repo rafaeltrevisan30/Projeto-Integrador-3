@@ -357,6 +357,8 @@ class _DialogueViewport extends StatelessWidget {
         scene.rightName != null &&
         scene.rightPortrait != null;
     final leftActive = line.side == DialogueSide.left;
+    final leftPortrait = leftActive ? line.portrait : scene.leftPortrait!;
+    final rightPortrait = leftActive ? scene.rightPortrait! : line.portrait;
 
     return Container(
       color: kNavy,
@@ -368,7 +370,7 @@ class _DialogueViewport extends StatelessWidget {
               bottom: 70,
               child: _CampaignPortraitActor(
                 name: scene.leftName!,
-                portrait: scene.leftPortrait!,
+                portrait: leftPortrait,
                 active: leftActive,
                 alignRight: false,
               ),
@@ -378,7 +380,7 @@ class _DialogueViewport extends StatelessWidget {
               bottom: 70,
               child: _CampaignPortraitActor(
                 name: scene.rightName!,
-                portrait: scene.rightPortrait!,
+                portrait: rightPortrait,
                 active: !leftActive,
                 alignRight: true,
               ),
