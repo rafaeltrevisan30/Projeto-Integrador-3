@@ -5,7 +5,8 @@ class Player {
   int xp;
   int level;
   int currentRegion;
-  // aqui temos as infos do jogador, como nome, hp, xp, level e região atual
+  Map<String, int> progresso;
+
   Player({
     required this.name,
     this.hp = 100,
@@ -13,7 +14,60 @@ class Player {
     this.xp = 0,
     this.level = 1,
     this.currentRegion = 0,
-  });
+    Map<String, int>? progresso,
+  }) : progresso =
+           progresso ??
+           {
+             'h15': 0,
+             'biblioteca': 0,
+             'refeitorio': 0,
+             'manacas': 0,
+             'capela': 0,
+           };
+
+  static int _asInt(dynamic value, int fallback) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
+
+  static Map<String, int> _progressoFrom(dynamic value) {
+    final defaults = {
+      'h15': 0,
+      'biblioteca': 0,
+      'refeitorio': 0,
+      'manacas': 0,
+      'capela': 0,
+    };
+
+    if (value is! Map) return defaults;
+
+    return {
+      ...defaults,
+      for (final entry in value.entries)
+        if (entry.key is String) entry.key as String: _asInt(entry.value, 0),
+    };
+  }
+
+  factory Player.fromFirestore(Map<String, dynamic> data) {
+    final level = _asInt(data['level'] ?? data['nivel'], 1);
+    final maxHp = 100 + ((level - 1).clamp(0, 9999) * 20);
+
+    return Player(
+      name: (data['nome'] as String?) ?? '',
+      xp: _asInt(data['xp'], 0),
+      level: level,
+      hp: _asInt(data['hp'], maxHp).clamp(1, maxHp),
+      maxHp: _asInt(data['maxHp'], maxHp),
+      currentRegion: _asInt(data['currentRegion'], 0),
+      progresso: _progressoFrom(data['progresso']),
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {'nome': name, 'xp': xp, 'level': level, 'progresso': progresso};
+  }
 
   int get xpToNextLevel => level * 100;
   double get xpProgress => xp.toDouble() / xpToNextLevel.toDouble();

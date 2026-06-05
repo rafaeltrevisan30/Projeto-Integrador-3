@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 import '../models/player.dart';
 import '../models/enemy.dart';
 import '../models/game_region.dart';
@@ -14,6 +17,8 @@ enum GameState {
 }
 
 class GameController extends ChangeNotifier {
+StreamSubscription<DocumentSnapshot>? _playerSubscription;
+
   Player player = Player(name: '');
   GameState _state = GameState.cutscene;
   int _cutsceneLine = 0;
@@ -45,20 +50,57 @@ class GameController extends ChangeNotifier {
     'capela': 4,
   };
 
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+
   static int? regionIndexForAmbiente(String ambId) => _ambienteToRegion[ambId];
 
   int _clampedRegionIndex(int index) =>
       index.clamp(0, gameRegions.length - 1).toInt();
 
-  void init(String playerName) {
-    player = Player(name: playerName, currentRegion: 1);
+  void observarJogador() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    _playerSubscription = _db
+        .collection('jogadores')
+        .doc(uid)
+        .snapshots()
+        .listen((doc) {
+          if (!doc.exists) return;
+
+          player = Player.fromFirestore(
+            doc.data() as Map<String, dynamic>,
+          );
+
+          notifyListeners();
+        });
+  }
+
+  @override
+  void dispose() {
+    _playerSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> salvarJogador() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    await _db
+        .collection('jogadores')
+        .doc(uid)
+        .update({
+          'nome': player.name,
+          'xp': player.xp,
+          'level': player.level,
+        });
+  }
+
+ void init() {
+    observarJogador();
+
     _state = GameState.cutscene;
     _cutsceneLine = 0;
     _currentEnemyIndex = 0;
-    _lastAnswerCorrect = null;
-    _leveledUp = false;
-    _answerLocked = false;
-    _singleEncounterMode = false;
+
     notifyListeners();
   }
 
@@ -114,7 +156,7 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void answerQuestion(int selectedIndex) {
+  void answerQuestion(int selectedIndex) async {
     if (_currentEnemy == null || _state != GameState.combat || _answerLocked) {
       return;
     }
@@ -141,6 +183,7 @@ class GameController extends ChangeNotifier {
 
       if (_currentEnemy!.isDefeated) {
         final leveled = player.gainXp(_currentEnemy!.xpReward);
+        await salvarJogador();
         _leveledUp = leveled;
         if (_singleEncounterMode) {
           _state = GameState.victory;

@@ -16,6 +16,15 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<GameController>().init(widget.playerName, false);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kNavy,
@@ -25,6 +34,12 @@ class _GameScreenState extends State<GameScreen> {
             return Column(
               children: [
                 _TopBar(game: game),
+                if (game.loadingPlayer)
+                  const LinearProgressIndicator(
+                    minHeight: 2,
+                    color: kGold,
+                    backgroundColor: kDarkBlue,
+                  ),
                 Expanded(flex: 60, child: _Viewport(game: game)),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
