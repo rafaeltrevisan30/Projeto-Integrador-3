@@ -5,6 +5,7 @@ class Player {
   int xp;
   int level;
   int currentRegion;
+  String assetPath;
   Map<String, int> progresso;
 
   Player({
@@ -14,6 +15,7 @@ class Player {
     this.xp = 0,
     this.level = 1,
     this.currentRegion = 0,
+    this.assetPath = 'assets/images/16x32 Idle-Sheet.png',
     Map<String, int>? progresso,
   }) : progresso =
            progresso ??
@@ -61,6 +63,10 @@ class Player {
       hp: _asInt(data['hp'], maxHp).clamp(1, maxHp),
       maxHp: _asInt(data['maxHp'], maxHp),
       currentRegion: _asInt(data['currentRegion'], 0),
+      assetPath:
+          (data['assetPath'] as String?) ??
+          (data['spritePath'] as String?) ??
+          'assets/images/16x32 Idle-Sheet.png',
       progresso: _progressoFrom(data['progresso']),
     );
   }
@@ -72,6 +78,7 @@ class Player {
       'hp': hp,
       'maxHp': maxHp,
       'level': level,
+      'assetPath': assetPath,
       'progresso': progresso,
     };
   }
