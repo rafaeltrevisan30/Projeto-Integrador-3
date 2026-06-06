@@ -67,19 +67,19 @@ class HeroScreen extends StatelessWidget {
         // Regiões completas
         int regioesConcluidas = 0;
 
-        if ((progresso['h15'] ?? 0) >= 5) {
+        if ((progresso['h15'] ?? 0) >= 3) {
           regioesConcluidas++;
         }
-        if ((progresso['biblioteca'] ?? 0) >= 5) {
+        if ((progresso['biblioteca'] ?? 0) >= 3) {
           regioesConcluidas++;
         }
-        if ((progresso['refeitorio'] ?? 0) >= 5) {
+        if ((progresso['refeitorio'] ?? 0) >= 3) {
           regioesConcluidas++;
         }
-        if ((progresso['manacas'] ?? 0) >= 5) {
+        if ((progresso['manacas'] ?? 0) >= 3) {
           regioesConcluidas++;
         }
-        if ((progresso['capela'] ?? 0) >= 1) {
+        if ((progresso['capela'] ?? 0) >= 2) {
           regioesConcluidas++;
         }
         // Status

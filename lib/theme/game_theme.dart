@@ -130,6 +130,6 @@ class FfCornerBox extends StatelessWidget {
     );
   }
 
-  Widget _corner() => Text('◆',
-      style: TextStyle(color: borderColor.withValues(alpha: 0.6), fontSize: 7));
+    Widget _corner() => Text('◆',
+      style: TextStyle(color: borderColor.withOpacity(0.6), fontSize: 7));
 }
