@@ -378,11 +378,11 @@ List<MapEntity> entitiesForRegion(int regionIndex) {
           enemyIndex: 1,
         ),
         MapEntity(
-          id: 'capela_guardiao_final',
+          id: 'capela_maligno',
           x: 20,
           y: 7,
           type: EntityType.boss,
-          name: 'GUARDIÃO FINAL',
+          name: 'Maligno',
           color: const Color(0xFFFDD835),
           dialogues: [],
           enemyIndex: 1,
