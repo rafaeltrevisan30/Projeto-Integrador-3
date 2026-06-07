@@ -38,7 +38,7 @@ const TextStyle kDimStyle = TextStyle(
 
 // ── Shared BoxDecoration builders ─────────────────────────────────
 BoxDecoration ffBox({
-  Color borderColor = kGold, //test
+  Color borderColor = kGold, 
   Color bgColor = kDarkBlue,
   double width = 2,
 }) {
