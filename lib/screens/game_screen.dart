@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/game_controller.dart';
+import '../data/game_assets.dart';
 import '../theme/game_theme.dart';
 import '../widgets/dpad_widget.dart';
 import '../widgets/action_buttons_widget.dart';
@@ -40,9 +41,9 @@ class _GameScreenState extends State<GameScreen> {
                     color: kGold,
                     backgroundColor: kDarkBlue,
                   ),
-                Expanded(flex: 60, child: _Viewport(game: game)),
+                Expanded(flex: 84, child: _Viewport(game: game)),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -62,7 +63,7 @@ class _GameScreenState extends State<GameScreen> {
                     ],
                   ),
                 ),
-                Expanded(flex: 38, child: _Controls(game: game)),
+                Expanded(flex: 13, child: _Controls(game: game)),
               ],
             );
           },
@@ -170,7 +171,7 @@ class _Viewport extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
       decoration: BoxDecoration(
         color: kNavy,
         border: Border.all(color: kGold, width: 2.5),
@@ -438,16 +439,14 @@ class _CombatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enemy = game.currentEnemy!;
-    final region = game.currentRegion;
     final question = enemy.currentQuestion;
     final answerResult = game.lastAnswerCorrect;
 
     return Column(
       children: [
         Expanded(
-          flex: 42,
+          flex: 68,
           child: _MonsterBattleStage(
-            regionColor: region.backgroundColor,
             enemyName: enemy.name,
             enemyAssetPath: enemy.assetPath,
             enemyColor: enemy.color,
@@ -467,7 +466,7 @@ class _CombatView extends StatelessWidget {
           ),
         ),
         Expanded(
-          flex: 65,
+          flex: 48,
           child: Container(
             color: kNavy,
             child: Column(
@@ -575,7 +574,6 @@ class _CombatView extends StatelessWidget {
 }
 
 class _MonsterBattleStage extends StatelessWidget {
-  final Color regionColor;
   final String enemyName;
   final String enemyAssetPath;
   final Color enemyColor;
@@ -590,7 +588,6 @@ class _MonsterBattleStage extends StatelessWidget {
   final String? feedback;
 
   const _MonsterBattleStage({
-    required this.regionColor,
     required this.enemyName,
     required this.enemyAssetPath,
     required this.enemyColor,
@@ -607,92 +604,97 @@ class _MonsterBattleStage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: regionColor,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: CustomPaint(painter: _BattleBackdropPainter()),
-          ),
-          Positioned(
-            top: 9,
-            left: 10,
-            child: _BattleHpPanel(
-              name: enemyName,
-              level: 5,
-              hp: enemyHp,
-              maxHp: enemyMaxHp,
-              alignRight: false,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final spriteSize = (constraints.maxHeight * 0.5).clamp(120.0, 210.0);
+        return Stack(
+          children: [
+            const Positioned.fill(child: ColoredBox(color: Color(0xFFF8F8F2))),
+            Positioned.fill(
+              child: CustomPaint(painter: _BattleBackdropPainter()),
             ),
-          ),
-          Positioned(
-            top: 35,
-            right: 22,
-            child: _BattleSprite(
-              key: ValueKey('enemy-$hitEnemy-$enemyHp'),
-              label: enemyName,
-              assetPath: enemyAssetPath,
-              color: enemyColor,
-              hit: hitEnemy,
-              backView: false,
+            Positioned(
+              top: 9,
+              right: 10,
+              child: _BattleHpPanel(
+                name: enemyName,
+                level: 5,
+                hp: enemyHp,
+                maxHp: enemyMaxHp,
+                alignRight: true,
+              ),
             ),
-          ),
-          Positioned(
-            left: 20,
-            bottom: 28,
-            child: _BattleSprite(
-              key: ValueKey('player-$hitPlayer-$playerHp'),
-              label: playerName,
-              assetPath: 'assets/images/16x32 Idle-Sheet.png',
-              color: kGold,
-              hit: hitPlayer,
-              backView: true,
+            Positioned(
+              top: constraints.maxHeight * 0.16,
+              left: constraints.maxWidth * 0.72 - spriteSize / 2,
+              child: _BattleSprite(
+                key: ValueKey('enemy-$hitEnemy-$enemyHp'),
+                label: enemyName,
+                assetPath: enemyAssetPath,
+                color: enemyColor,
+                hit: hitEnemy,
+                backView: false,
+                size: spriteSize,
+              ),
             ),
-          ),
-          Positioned(
-            right: 10,
-            bottom: 10,
-            child: _BattleHpPanel(
-              name: playerName.isEmpty ? 'VINI' : playerName,
-              level: playerLevel,
-              hp: playerHp,
-              maxHp: playerMaxHp,
-              alignRight: true,
-              showNumbers: true,
+            Positioned(
+              left: constraints.maxWidth * 0.22 - spriteSize * 0.59,
+              bottom: constraints.maxHeight * 0.03,
+              child: _BattleSprite(
+                key: ValueKey('player-$hitPlayer-$playerHp'),
+                label: playerName,
+                assetPath: GameAssets.viniBattlePose,
+                color: kGold,
+                hit: hitPlayer,
+                backView: true,
+                size: spriteSize * 1.18,
+              ),
             ),
-          ),
-          if (feedback != null)
             Positioned(
               left: 10,
-              right: 10,
-              bottom: 2,
-              child: IgnorePointer(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: kNavy.withValues(alpha: 0.82),
-                    border: Border.all(
-                      color: hitEnemy ? kGreenHPLight : kCrimsonLight,
+              bottom: 10,
+              child: _BattleHpPanel(
+                name: playerName.isEmpty ? 'VINI' : playerName,
+                level: playerLevel,
+                hp: playerHp,
+                maxHp: playerMaxHp,
+                alignRight: false,
+                showNumbers: true,
+              ),
+            ),
+            if (feedback != null)
+              Positioned(
+                left: 10,
+                right: 10,
+                bottom: 2,
+                child: IgnorePointer(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
                     ),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Text(
-                    feedback!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: hitEnemy ? kGreenHPLight : kCrimsonLight,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
+                    decoration: BoxDecoration(
+                      color: kNavy.withValues(alpha: 0.82),
+                      border: Border.all(
+                        color: hitEnemy ? kGreenHPLight : kCrimsonLight,
+                      ),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      feedback!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: hitEnemy ? kGreenHPLight : kCrimsonLight,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
@@ -735,6 +737,7 @@ class _BattleSprite extends StatelessWidget {
   final Color color;
   final bool hit;
   final bool backView;
+  final double size;
 
   const _BattleSprite({
     super.key,
@@ -743,6 +746,7 @@ class _BattleSprite extends StatelessWidget {
     required this.color,
     required this.hit,
     required this.backView,
+    required this.size,
   });
 
   @override
@@ -758,87 +762,55 @@ class _BattleSprite extends StatelessWidget {
 
         return Transform.translate(
           offset: Offset(shake, lift),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Transform.translate(
-                offset: const Offset(0, 42),
-                child: Container(
-                  width: backView ? 116 : 104,
-                  height: backView ? 28 : 22,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: Colors.white24),
-                  ),
-                ),
-              ),
-              Container(
-                width: backView ? 104 : 92,
-                height: backView ? 104 : 92,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withValues(alpha: backView ? 0.16 : 0.12),
-                  border: Border.all(
-                    color: color.withValues(alpha: 0.35),
-                    width: 1.4,
-                  ),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Text(
-                      backView ? 'COSTAS' : 'FRENTE',
-                      style: TextStyle(
-                        color: color.withValues(alpha: 0.16),
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
+          child: SizedBox(
+            width: size,
+            height: size + 20,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.topCenter,
+              children: [
+                SizedBox(
+                  width: size,
+                  height: size,
+                  child: ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      kCrimsonLight.withValues(alpha: 0.55 * flashOpacity),
+                      BlendMode.srcATop,
                     ),
-                    _SpriteImage(
+                    child: _SpriteImage(
                       assetPath: assetPath,
-                      fallbackText: backView ? '🧥' : assetPath,
-                      size: backView ? 78 : 72,
+                      fallbackText: '?',
+                      size: size,
                     ),
-                    if (flashOpacity > 0)
-                      Positioned.fill(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: kCrimsonLight.withValues(
-                              alpha: 0.48 * flashOpacity,
-                            ),
-                          ),
-                        ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: kNavy.withValues(alpha: 0.82),
+                      border: Border.all(color: color.withValues(alpha: 0.55)),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      label.length > 14
+                          ? '${label.substring(0, 14)}...'
+                          : label,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
                       ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: -8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: kNavy.withValues(alpha: 0.82),
-                    border: Border.all(color: color.withValues(alpha: 0.55)),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Text(
-                    label.length > 14 ? '${label.substring(0, 14)}...' : label,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -976,31 +948,27 @@ class _BattleHpPanel extends StatelessWidget {
 class _BattleBackdropPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final stripePaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.07)
-      ..strokeWidth = 1;
+    final fill = Paint()..color = const Color(0xFFB7CF8C);
+    final outline = Paint()
+      ..color = const Color(0xFF78945A)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
 
-    for (double y = 8; y < size.height; y += 9) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), stripePaint);
-    }
+    final enemyBase = Rect.fromCenter(
+      center: Offset(size.width * 0.72, size.height * 0.68),
+      width: size.width * 0.42,
+      height: size.height * 0.18,
+    );
+    final playerBase = Rect.fromCenter(
+      center: Offset(size.width * 0.22, size.height * 0.88),
+      width: size.width * 0.46,
+      height: size.height * 0.17,
+    );
 
-    final arenaPaint = Paint()..color = Colors.white.withValues(alpha: 0.12);
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(size.width * 0.73, size.height * 0.55),
-        width: size.width * 0.42,
-        height: 34,
-      ),
-      arenaPaint,
-    );
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(size.width * 0.28, size.height * 0.78),
-        width: size.width * 0.48,
-        height: 38,
-      ),
-      arenaPaint,
-    );
+    canvas.drawOval(enemyBase, fill);
+    canvas.drawOval(enemyBase, outline);
+    canvas.drawOval(playerBase, fill);
+    canvas.drawOval(playerBase, outline);
   }
 
   @override
@@ -1214,20 +1182,25 @@ class _Controls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
+      padding: const EdgeInsets.fromLTRB(12, 2, 12, 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const DPadWidget(),
+          const DPadWidget(buttonSize: 25, gap: 2),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               _MiniButton(label: 'SELECT'),
-              SizedBox(height: 8),
+              SizedBox(height: 4),
               _MiniButton(label: 'START'),
             ],
           ),
-          ActionButtonsWidget(onA: _onA(context), onB: _onB(context)),
+          ActionButtonsWidget(
+            onA: _onA(context),
+            onB: _onB(context),
+            buttonSize: 32,
+            gap: 4,
+          ),
         ],
       ),
     );

@@ -385,7 +385,7 @@ class _DialogueViewport extends StatelessWidget {
             ),
           ] else
             Center(
-              child: Text(line.portrait, style: const TextStyle(fontSize: 76)),
+              child: _PortraitVisual(portrait: line.portrait, active: true),
             ),
           Positioned(
             left: 0,

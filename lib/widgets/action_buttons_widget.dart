@@ -6,6 +6,8 @@ class ActionButtonsWidget extends StatelessWidget {
   final VoidCallback? onB;
   final String labelA;
   final String labelB;
+  final double buttonSize;
+  final double gap;
 
   const ActionButtonsWidget({
     super.key,
@@ -13,6 +15,8 @@ class ActionButtonsWidget extends StatelessWidget {
     this.onB,
     this.labelA = 'A',
     this.labelB = 'B',
+    this.buttonSize = 52,
+    this.gap = 8,
   });
 
   Widget _btn(String label, VoidCallback? onTap, {bool primary = false}) {
@@ -20,30 +24,24 @@ class ActionButtonsWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 52,
-        height: 52,
+        width: buttonSize,
+        height: buttonSize,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: active
-                ? (primary ? kGold : kGoldDark)
-                : kBorder,
+            color: active ? (primary ? kGold : kGoldDark) : kBorder,
             width: active ? 2 : 1.5,
           ),
           color: active
-              ? (primary
-                  ? kGold.withValues(alpha: 0.15)
-                  : kDarkBlue)
+              ? (primary ? kGold.withValues(alpha: 0.15) : kDarkBlue)
               : kNavy,
         ),
         child: Center(
           child: Text(
             label,
             style: TextStyle(
-              color: active
-                  ? (primary ? kGoldLight : kParchmentDim)
-                  : kBorder,
-              fontSize: 18,
+              color: active ? (primary ? kGoldLight : kParchmentDim) : kBorder,
+              fontSize: buttonSize * 0.35,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -58,7 +56,7 @@ class ActionButtonsWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _btn(labelA, onA, primary: true),
-        const SizedBox(height: 8),
+        SizedBox(height: gap),
         _btn(labelB, onB),
       ],
     );

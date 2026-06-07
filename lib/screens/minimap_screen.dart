@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 
 import '../controllers/campaign_controller.dart';
 import '../controllers/game_controller.dart';
+import '../data/game_assets.dart';
 import '../models/ambiente.dart';
+import '../models/map_entity.dart';
 import '../services/pontos_controller.dart';
 import '../theme/game_theme.dart';
 
@@ -16,6 +18,7 @@ class MinimapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final pontos = context.watch<PontosController>();
     final campaign = context.watch<CampaignController>();
+    final game = context.watch<GameController>();
 
     if (pontos.ambientes.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -24,7 +27,10 @@ class MinimapScreen extends StatelessWidget {
     final ambientes = _orderedAmbientes(pontos.ambientes);
     final currentAmbId = pontos.pontoAtual;
     final targetAmbId = _targetAmbienteId(campaign);
-    final playerOffset = _playerOffset(ambientes, pontos.lati, pontos.long);
+    final playerOffset = currentAmbId == null
+        ? _playerOffset(ambientes, pontos.lati, pontos.long)
+        : _campusRegionOffsets[currentAmbId] ??
+              _playerOffset(ambientes, pontos.lati, pontos.long);
 
     return SafeArea(
       child: Column(
@@ -55,12 +61,18 @@ class MinimapScreen extends StatelessWidget {
                   return Stack(
                     children: [
                       Positioned.fill(
-                        child: CustomPaint(
-                          painter: _CampusMapPainter(
-                            ambientes: ambientes,
-                            currentAmbId: currentAmbId,
-                            targetAmbId: targetAmbId,
-                            campaign: campaign,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.asset(
+                                GameAssets.campusMap,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.center,
+                              ),
+                              ColoredBox(color: kNavy.withValues(alpha: 0.12)),
+                            ],
                           ),
                         ),
                       ),
@@ -72,6 +84,7 @@ class MinimapScreen extends StatelessWidget {
                           active: currentAmbId == amb.id,
                           target: targetAmbId == amb.id,
                           unlocked: _isUnlocked(campaign, amb.id),
+                          progress: _regionProgress(amb.id, game, campaign),
                         ),
                       ),
                       _PlayerMarker(
@@ -90,6 +103,11 @@ class MinimapScreen extends StatelessWidget {
                           ),
                           targetAmbiente: _findAmbiente(ambientes, targetAmbId),
                           campaign: campaign,
+                          progress: _regionProgress(
+                            currentAmbId ?? targetAmbId ?? '',
+                            game,
+                            campaign,
+                          ),
                         ),
                       ),
                     ],
@@ -137,6 +155,7 @@ class _RegionPin extends StatelessWidget {
   final bool active;
   final bool target;
   final bool unlocked;
+  final int progress;
 
   const _RegionPin({
     required this.ambiente,
@@ -145,6 +164,7 @@ class _RegionPin extends StatelessWidget {
     required this.active,
     required this.target,
     required this.unlocked,
+    required this.progress,
   });
 
   @override
@@ -206,6 +226,25 @@ class _RegionPin extends StatelessWidget {
                   color: color,
                   fontSize: 8.5,
                   height: 1.1,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: LinearProgressIndicator(
+                  minHeight: 4,
+                  value: progress / 100,
+                  color: progress == 100 ? kGreenHPLight : kGold,
+                  backgroundColor: kBorder,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '$progress%',
+                style: TextStyle(
+                  color: progress == 100 ? kGreenHPLight : kParchmentDim,
+                  fontSize: 7,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -284,11 +323,13 @@ class _StatusPanel extends StatelessWidget {
   final Ambiente? currentAmbiente;
   final Ambiente? targetAmbiente;
   final CampaignController campaign;
+  final int progress;
 
   const _StatusPanel({
     required this.currentAmbiente,
     required this.targetAmbiente,
     required this.campaign,
+    required this.progress,
   });
 
   @override
@@ -328,6 +369,37 @@ class _StatusPanel extends StatelessWidget {
           const SizedBox(height: 7),
           Row(
             children: [
+              Icon(
+                progress == 100 ? Icons.check_circle : Icons.analytics_outlined,
+                color: progress == 100 ? kGreenHPLight : kGold,
+                size: 15,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    minHeight: 6,
+                    value: progress / 100,
+                    color: progress == 100 ? kGreenHPLight : kGold,
+                    backgroundColor: kBorder,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$progress%',
+                style: TextStyle(
+                  color: progress == 100 ? kGreenHPLight : kGold,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 7),
+          Row(
+            children: [
               const Icon(Icons.flag, color: kCrimsonLight, size: 15),
               const SizedBox(width: 8),
               Expanded(
@@ -347,191 +419,6 @@ class _StatusPanel extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _CampusMapPainter extends CustomPainter {
-  final List<Ambiente> ambientes;
-  final String? currentAmbId;
-  final String? targetAmbId;
-  final CampaignController campaign;
-
-  const _CampusMapPainter({
-    required this.ambientes,
-    required this.currentAmbId,
-    required this.targetAmbId,
-    required this.campaign,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final bg = Paint()..color = kDarkBlue;
-    final border = Paint()
-      ..color = kGoldDark
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(8)),
-      bg,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(1, 1, size.width - 2, size.height - 2),
-        const Radius.circular(8),
-      ),
-      border,
-    );
-
-    _drawTerrain(canvas, size);
-    _drawPaths(canvas, size);
-    _drawRegions(canvas, size);
-  }
-
-  void _drawTerrain(Canvas canvas, Size size) {
-    final grass = Paint()..color = const Color(0xFF1D3A2A);
-    final plaza = Paint()..color = const Color(0xFF25314D);
-    final water = Paint()..color = const Color(0xFF12395A);
-
-    final ground = Path()
-      ..moveTo(0, size.height * 0.1)
-      ..quadraticBezierTo(
-        size.width * 0.2,
-        size.height * 0.02,
-        size.width * 0.48,
-        size.height * 0.12,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.82,
-        size.height * 0.22,
-        size.width,
-        size.height * 0.08,
-      )
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-    canvas.drawPath(ground, grass);
-
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(size.width * 0.23, size.height * 0.86),
-        width: size.width * 0.62,
-        height: size.height * 0.22,
-      ),
-      water,
-    );
-
-    canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(size.width * 0.53, size.height * 0.54),
-        width: size.width * 0.34,
-        height: size.height * 0.22,
-      ),
-      plaza,
-    );
-  }
-
-  void _drawPaths(Canvas canvas, Size size) {
-    final pathPaint = Paint()
-      ..color = const Color(0xFFC4A56B)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 13
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    final pathShade = Paint()
-      ..color = const Color(0xFF5E4B2A)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 16
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final byId = {for (final amb in ambientes) amb.id: amb};
-    final routeAmbientes = [
-      byId['h15'],
-      byId['refeitorio'],
-      byId['manacas'],
-      byId['biblioteca'],
-      byId['capela'],
-    ].whereType<Ambiente>().toList();
-    final points = routeAmbientes
-        .map((amb) => _ambienteOffset(ambientes, amb))
-        .map(
-          (offset) => Offset(offset.dx * size.width, offset.dy * size.height),
-        )
-        .toList();
-
-    if (points.length < 2) return;
-
-    final route = Path()..moveTo(points.first.dx, points.first.dy);
-    for (final point in points.skip(1)) {
-      route.quadraticBezierTo(
-        size.width * 0.5,
-        size.height * 0.52,
-        point.dx,
-        point.dy,
-      );
-    }
-
-    canvas.drawPath(route, pathShade);
-    canvas.drawPath(route, pathPaint);
-  }
-
-  void _drawRegions(Canvas canvas, Size size) {
-    for (final amb in ambientes) {
-      final centerN = _ambienteOffset(ambientes, amb);
-      final center = Offset(centerN.dx * size.width, centerN.dy * size.height);
-      final active = amb.id == currentAmbId;
-      final target = amb.id == targetAmbId;
-      final unlocked = _isUnlocked(campaign, amb.id);
-      final radius = target
-          ? 38.0
-          : active
-          ? 34.0
-          : 29.0;
-      final fill = Paint()
-        ..color =
-            (active
-                    ? kGold
-                    : target
-                    ? kCrimson
-                    : unlocked
-                    ? const Color(0xFF35564A)
-                    : const Color(0xFF202535))
-                .withValues(alpha: active || target ? 0.32 : 0.72);
-      final outline = Paint()
-        ..color = active
-            ? kGold
-            : target
-            ? kCrimsonLight
-            : unlocked
-            ? kParchmentDim
-            : kBorder
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = active || target ? 3 : 1.3;
-
-      canvas.drawCircle(center, radius, fill);
-      canvas.drawCircle(center, radius, outline);
-      if (target) {
-        canvas.drawCircle(
-          center,
-          radius + 9,
-          Paint()
-            ..color = kCrimsonLight.withValues(alpha: 0.26)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 3,
-        );
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _CampusMapPainter oldDelegate) {
-    return oldDelegate.currentAmbId != currentAmbId ||
-        oldDelegate.targetAmbId != targetAmbId ||
-        oldDelegate.campaign.stage != campaign.stage ||
-        oldDelegate.campaign.defeatedBossRegions !=
-            campaign.defeatedBossRegions ||
-        oldDelegate.ambientes != ambientes;
   }
 }
 
@@ -559,8 +446,17 @@ Offset _playerOffset(List<Ambiente> ambientes, double lat, double lng) {
 }
 
 Offset _ambienteOffset(List<Ambiente> ambientes, Ambiente ambiente) {
-  return _coordinateOffset(ambientes, ambiente.latitude, ambiente.longitude);
+  return _campusRegionOffsets[ambiente.id] ??
+      _coordinateOffset(ambientes, ambiente.latitude, ambiente.longitude);
 }
+
+const Map<String, Offset> _campusRegionOffsets = {
+  'manacas': Offset(0.42, 0.16),
+  'capela': Offset(0.70, 0.17),
+  'refeitorio': Offset(0.50, 0.29),
+  'biblioteca': Offset(0.65, 0.47),
+  'h15': Offset(0.57, 0.72),
+};
 
 Offset _coordinateOffset(List<Ambiente> ambientes, double lat, double lng) {
   final latitudes = ambientes.map((amb) => amb.latitude);
@@ -658,4 +554,34 @@ String _shortName(String name) {
 
 double _lerp(double min, double max, num t) {
   return min + (max - min) * t.toDouble();
+}
+
+int _regionProgress(
+  String ambienteId,
+  GameController game,
+  CampaignController campaign,
+) {
+  final regionIndex = GameController.regionIndexForAmbiente(ambienteId);
+  if (regionIndex == null) return 0;
+
+  final combatEntities = entitiesForRegion(regionIndex)
+      .where(
+        (entity) =>
+            entity.type == EntityType.enemy || entity.type == EntityType.boss,
+      )
+      .toList();
+  final combatCount = combatEntities.length;
+  if (combatCount == 0) return 0;
+
+  final registeredVictories = combatEntities
+      .where((entity) => game.player.encontrosDerrotados.contains(entity.id))
+      .length;
+  final legacyVictories = game.player.progresso[ambienteId] ?? 0;
+  final bossFallback = campaign.defeatedBossRegions.contains(regionIndex)
+      ? 1
+      : 0;
+  final victories = registeredVictories > 0
+      ? registeredVictories
+      : math.max(legacyVictories, bossFallback);
+  return ((victories.clamp(0, combatCount) / combatCount) * 100).round();
 }

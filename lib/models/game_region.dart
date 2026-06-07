@@ -107,6 +107,31 @@ List<GameRegion> get gameRegions => [
           ),
         ],
       ),
+      Enemy(
+        name: 'Ms. Hamburgão do Mal',
+        maxHp: 140,
+        xpReward: 120,
+        assetPath: 'assets/images/refeitorio/refeitorio-hamburgao.png',
+        color: const Color(0xFFFFB300),
+        questions: const [
+          QuizQuestion(
+            question:
+                'Qual estrutura repete um bloco enquanto uma condição for verdadeira?',
+            options: ['Classe', 'Loop while', 'Variável', 'Comentário'],
+            correctIndex: 1,
+          ),
+          QuizQuestion(
+            question: 'Qual palavra-chave cria uma função sem retorno em Dart?',
+            options: ['void', 'null', 'final', 'break'],
+            correctIndex: 0,
+          ),
+          QuizQuestion(
+            question: 'Qual operador representa o E lógico em Dart?',
+            options: ['||', '&&', '==', '++'],
+            correctIndex: 1,
+          ),
+        ],
+      ),
     ],
   ),
 

@@ -7,6 +7,7 @@ class Player {
   int currentRegion;
   String assetPath;
   Map<String, int> progresso;
+  Set<String> encontrosDerrotados;
 
   Player({
     required this.name,
@@ -17,6 +18,7 @@ class Player {
     this.currentRegion = 0,
     this.assetPath = 'assets/images/16x32 Idle-Sheet.png',
     Map<String, int>? progresso,
+    Set<String>? encontrosDerrotados,
   }) : progresso =
            progresso ??
            {
@@ -25,7 +27,8 @@ class Player {
              'refeitorio': 0,
              'manacas': 0,
              'capela': 0,
-           };
+           },
+       encontrosDerrotados = encontrosDerrotados ?? <String>{};
 
   static int _asInt(dynamic value, int fallback) {
     if (value is int) return value;
@@ -68,6 +71,11 @@ class Player {
           (data['spritePath'] as String?) ??
           'assets/images/16x32 Idle-Sheet.png',
       progresso: _progressoFrom(data['progresso']),
+      encontrosDerrotados: {
+        for (final id
+            in (data['encontrosDerrotados'] as List<dynamic>? ?? const []))
+          if (id is String) id,
+      },
     );
   }
 
@@ -80,6 +88,7 @@ class Player {
       'level': level,
       'assetPath': assetPath,
       'progresso': progresso,
+      'encontrosDerrotados': encontrosDerrotados.toList(),
     };
   }
 

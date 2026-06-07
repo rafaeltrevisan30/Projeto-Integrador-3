@@ -150,6 +150,12 @@ class GameController extends ChangeNotifier {
     });
   }
 
+  Future<void> marcarEncontroDerrotado(String encounterId) async {
+    if (!player.encontrosDerrotados.add(encounterId)) return;
+    notifyListeners();
+    await salvarJogador();
+  }
+
   void init([String? playerName, bool resetGame = true]) {
     if (playerName != null && playerName.trim().isNotEmpty) {
       player.name = playerName.trim();

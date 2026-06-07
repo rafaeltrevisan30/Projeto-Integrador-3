@@ -220,9 +220,7 @@ class _Dialogue extends StatelessWidget {
       color: kNavy,
       child: Stack(
         children: [
-          Center(
-            child: Text(line.portrait, style: const TextStyle(fontSize: 76)),
-          ),
+          Center(child: _DialoguePortrait(portrait: line.portrait)),
           Positioned(
             left: 0,
             right: 0,
@@ -269,6 +267,28 @@ class _Dialogue extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _DialoguePortrait extends StatelessWidget {
+  final String portrait;
+
+  const _DialoguePortrait({required this.portrait});
+
+  @override
+  Widget build(BuildContext context) {
+    if (portrait.startsWith('assets/')) {
+      return Image.asset(
+        portrait,
+        width: 128,
+        height: 128,
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) =>
+            const Icon(Icons.person, color: kGold, size: 76),
+      );
+    }
+
+    return Text(portrait, style: const TextStyle(fontSize: 76));
   }
 }
 

@@ -6,6 +6,8 @@ class DPadWidget extends StatelessWidget {
   final VoidCallback? onDown;
   final VoidCallback? onLeft;
   final VoidCallback? onRight;
+  final double buttonSize;
+  final double gap;
 
   const DPadWidget({
     super.key,
@@ -13,27 +15,22 @@ class DPadWidget extends StatelessWidget {
     this.onDown,
     this.onLeft,
     this.onRight,
+    this.buttonSize = 46,
+    this.gap = 4,
   });
 
   Widget _btn(IconData icon, VoidCallback? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 46,
-        height: 46,
+        width: buttonSize,
+        height: buttonSize,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: kGoldDark,
-            width: 1.5,
-          ),
+          border: Border.all(color: kGoldDark, width: 1.5),
           color: kDarkBlue,
         ),
-        child: Icon(
-          icon,
-          color: kParchmentDim,
-          size: 20,
-        ),
+        child: Icon(icon, color: kParchmentDim, size: buttonSize * 0.44),
       ),
     );
   }
@@ -44,30 +41,32 @@ class DPadWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _btn(Icons.keyboard_arrow_up, onUp),
-        const SizedBox(height: 4),
+        SizedBox(height: gap),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             _btn(Icons.keyboard_arrow_left, onLeft),
-            const SizedBox(width: 4),
+            SizedBox(width: gap),
             Container(
-              width: 46,
-              height: 46,
+              width: buttonSize,
+              height: buttonSize,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),
                 color: kNavy,
                 border: Border.all(color: kBorder, width: 1),
               ),
               child: const Center(
-                child: Text('◆',
-                    style: TextStyle(color: kBorder, fontSize: 10)),
+                child: Text(
+                  '◆',
+                  style: TextStyle(color: kBorder, fontSize: 10),
+                ),
               ),
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: gap),
             _btn(Icons.keyboard_arrow_right, onRight),
           ],
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: gap),
         _btn(Icons.keyboard_arrow_down, onDown),
       ],
     );

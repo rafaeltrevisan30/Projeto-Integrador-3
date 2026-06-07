@@ -114,7 +114,7 @@ List<MapEntity> entitiesForRegion(int regionIndex) {
           name: 'O Hamburgão',
           color: const Color(0xFFFDD835),
           dialogues: [],
-          enemyIndex: 1,
+          enemyIndex: 2,
           preCombatDialogues: [
             'O Grande Hamburgão surge no fundo da praça, cercado por bandejas retorcidas.',
             'Ele ri como se já tivesse vencido antes mesmo do combate começar.',
@@ -399,5 +399,5 @@ List<MapEntity> entitiesForRegion(int regionIndex) {
   }
 }
 
-int playerStartX(int regionIndex) => 3;
-int playerStartY(int regionIndex) => 7;
+int playerStartX(int regionIndex) => regionIndex == 1 ? 11 : 3;
+int playerStartY(int regionIndex) => regionIndex == 1 ? 13 : 7;

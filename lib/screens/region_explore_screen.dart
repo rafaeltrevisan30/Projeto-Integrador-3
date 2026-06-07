@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../controllers/campaign_controller.dart';
 import '../controllers/game_controller.dart';
 import '../data/campaign_story_data.dart';
+import '../data/game_assets.dart';
 import '../models/campaign_scene.dart';
 import '../models/game_region.dart';
 import '../models/map_entity.dart';
@@ -174,6 +175,9 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
     );
     if (!mounted || won != true) return;
 
+    await game.marcarEncontroDerrotado(entity.id);
+    if (!mounted) return;
+
     if (entity.type == EntityType.boss) {
       context.read<CampaignController>().markBossDefeated(widget.regionIndex);
       if (!mounted) return;
@@ -259,9 +263,9 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
 
             // ── Map viewport ────────────────────────────────────
             Expanded(
-              flex: 60,
+              flex: 73,
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 12),
+                margin: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
                   color: kNavy,
                   border: Border.all(color: kGold, width: 2.5),
@@ -272,12 +276,11 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
                   children: [
                     // Mapa
                     Positioned.fill(
-                      child: CustomPaint(
-                        painter: _MapPainter(
-                          px: _px,
-                          py: _py,
-                          entities: _entities,
-                        ),
+                      child: _RegionMapCanvas(
+                        regionIndex: widget.regionIndex,
+                        px: _px,
+                        py: _py,
+                        entities: _entities,
                       ),
                     ),
 
@@ -352,7 +355,7 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
 
             // ── Brand label ─────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
+              padding: const EdgeInsets.symmetric(vertical: 3),
               child: Text(
                 '◆  EXPLORAÇÃO  ◆',
                 style: TextStyle(
@@ -365,14 +368,16 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
 
             // ── Controls ─────────────────────────────────────────
             Expanded(
-              flex: 37,
+              flex: 24,
               child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
+                padding: const EdgeInsets.fromLTRB(14, 4, 14, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     DPadWidget(
+                      buttonSize: 34,
+                      gap: 3,
                       onUp: () => _move(0, -1),
                       onDown: () => _move(0, 1),
                       onLeft: () => _move(-1, 0),
@@ -405,6 +410,8 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
                       onB: _onB,
                       labelA: 'A',
                       labelB: 'B',
+                      buttonSize: 42,
+                      gap: 6,
                     ),
                   ],
                 ),
@@ -484,112 +491,168 @@ class _ExploreTopBar extends StatelessWidget {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MAP PAINTER (CustomPainter)
+// MAPA ILUSTRADO
 // ═══════════════════════════════════════════════════════════════
-class _MapPainter extends CustomPainter {
-  final int px, py;
+class _RegionMapCanvas extends StatelessWidget {
+  final int regionIndex;
+  final int px;
+  final int py;
   final List<MapEntity> entities;
 
-  const _MapPainter({
+  const _RegionMapCanvas({
+    required this.regionIndex,
     required this.px,
     required this.py,
     required this.entities,
   });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final cW = size.width / kMapW;
-    final cH = size.height / kMapH;
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final side = min(constraints.maxWidth, constraints.maxHeight);
+        final cellW = side / kMapW;
+        final cellH = side / kMapH;
 
-    // ── Fundo ────────────────────────────────────────────────
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..color = const Color(0xFF080D1A),
-    );
-
-    // ── Grid sutil ───────────────────────────────────────────
-    final gridPaint = Paint()
-      ..color = const Color(0xFF1A2540)
-      ..strokeWidth = 0.6;
-
-    for (int x = 0; x <= kMapW; x++) {
-      canvas.drawLine(
-        Offset(x * cW, 0),
-        Offset(x * cW, size.height),
-        gridPaint,
-      );
-    }
-    for (int y = 0; y <= kMapH; y++) {
-      canvas.drawLine(Offset(0, y * cH), Offset(size.width, y * cH), gridPaint);
-    }
-
-    // ── Entidades ─────────────────────────────────────────────
-    for (final e in entities) {
-      final cx = e.x * cW + cW / 2;
-      final cy = e.y * cH + cH / 2;
-      final r = min(cW, cH) * 0.36;
-
-      // Sombra
-      canvas.drawCircle(
-        Offset(cx, cy + 1.5),
-        r,
-        Paint()..color = Colors.black45,
-      );
-
-      // Corpo
-      canvas.drawCircle(Offset(cx, cy), r, Paint()..color = e.color);
-
-      // Borda
-      canvas.drawCircle(
-        Offset(cx, cy),
-        r,
-        Paint()
-          ..color = Colors.white.withValues(alpha: 0.25)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.2,
-      );
-
-      // Chefe: círculo extra pulsante
-      if (e.type == EntityType.boss) {
-        canvas.drawCircle(
-          Offset(cx, cy),
-          r * 1.55,
-          Paint()
-            ..color = e.color.withValues(alpha: 0.25)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 2,
+        return Center(
+          child: SizedBox.square(
+            dimension: side,
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                Positioned.fill(
+                  child: Image.asset(
+                    GameAssets.mapForRegion(regionIndex),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) =>
+                        const ColoredBox(color: Color(0xFF080D1A)),
+                  ),
+                ),
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: Colors.black.withValues(alpha: 0.08),
+                  ),
+                ),
+                for (final entity in entities)
+                  _MapEntityMarker(
+                    entity: entity,
+                    left: (entity.x + 0.5) * cellW,
+                    top: (entity.y + 0.5) * cellH,
+                    nearby: (px - entity.x).abs() + (py - entity.y).abs() <= 1,
+                  ),
+                _MapPlayerMarker(
+                  left: (px + 0.5) * cellW,
+                  top: (py + 0.5) * cellH,
+                ),
+              ],
+            ),
+          ),
         );
-      }
-    }
-
-    // ── Player (ponto branco) ─────────────────────────────────
-    final pcx = px * cW + cW / 2;
-    final pcy = py * cH + cH / 2;
-    final pr = min(cW, cH) * 0.38;
-
-    // Sombra
-    canvas.drawCircle(
-      Offset(pcx, pcy + 1.5),
-      pr,
-      Paint()..color = Colors.black45,
-    );
-
-    // Ponto branco
-    canvas.drawCircle(Offset(pcx, pcy), pr, Paint()..color = Colors.white);
-
-    // Halo ao redor do player
-    canvas.drawCircle(
-      Offset(pcx, pcy),
-      pr * 1.6,
-      Paint()
-        ..color = Colors.white.withValues(alpha: 0.12)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
+      },
     );
   }
+}
+
+class _MapEntityMarker extends StatelessWidget {
+  final MapEntity entity;
+  final double left;
+  final double top;
+  final bool nearby;
+
+  const _MapEntityMarker({
+    required this.entity,
+    required this.left,
+    required this.top,
+    required this.nearby,
+  });
 
   @override
-  bool shouldRepaint(_MapPainter old) => old.px != px || old.py != py;
+  Widget build(BuildContext context) {
+    final isBoss = entity.type == EntityType.boss;
+    final size = isBoss ? 44.0 : 36.0;
+    final assetPath = GameAssets.entityForId(entity.id);
+
+    return Positioned(
+      left: left - size / 2,
+      top: top - size / 2,
+      width: size,
+      height: size,
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 180),
+        scale: nearby ? 1.16 : 1,
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: kNavy.withValues(alpha: 0.9),
+            border: Border.all(
+              color: nearby ? kGold : entity.color,
+              width: nearby || isBoss ? 2.4 : 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.55),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+              if (nearby || isBoss)
+                BoxShadow(
+                  color: (nearby ? kGold : entity.color).withValues(alpha: 0.4),
+                  blurRadius: 9,
+                  spreadRadius: 1,
+                ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: assetPath == null
+              ? Icon(Icons.person, color: entity.color, size: size * 0.62)
+              : Image.asset(
+                  assetPath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => Icon(
+                    Icons.person,
+                    color: entity.color,
+                    size: size * 0.62,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapPlayerMarker extends StatelessWidget {
+  final double left;
+  final double top;
+
+  const _MapPlayerMarker({required this.left, required this.top});
+
+  @override
+  Widget build(BuildContext context) {
+    const size = 34.0;
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 160),
+      curve: Curves.easeOut,
+      left: left - size / 2,
+      top: top - size / 2,
+      width: size,
+      height: size,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: kGold,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: kGold.withValues(alpha: 0.48),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: const Icon(Icons.person, color: kNavy, size: 22),
+      ),
+    );
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -608,58 +671,96 @@ class _DialogueBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final originalEntityId = entity.id.replaceFirst('_dialogue', '');
+    final assetPath = GameAssets.entityForId(originalEntityId);
+
     return Container(
       decoration: const BoxDecoration(
         color: kNavy,
         border: Border(top: BorderSide(color: kGold, width: 2)),
       ),
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          // Speaker name box
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-            decoration: ffBox(
-              borderColor: entity.type == EntityType.npc
-                  ? entity.color
-                  : kCrimsonLight,
-              bgColor: kDarkBlue,
-            ),
-            child: Text(
-              entity.name.toUpperCase(),
-              style: TextStyle(
-                color: entity.type == EntityType.npc
-                    ? entity.color
-                    : kCrimsonLight,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          // Dialogue text
-          Text(
-            entity.dialogues.isNotEmpty ? entity.dialogues[line] : '',
-            style: kBodyStyle,
-          ),
-          const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                isLast ? '[ B ] Fechar' : '[ A ] Continuar',
-                style: TextStyle(
-                  color: kGoldDark,
-                  fontSize: 9,
-                  letterSpacing: 1.5,
+          if (assetPath != null) ...[
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                color: kDarkBlue,
+                border: Border.all(
+                  color: entity.type == EntityType.npc
+                      ? entity.color
+                      : kCrimsonLight,
+                  width: 1.5,
                 ),
+                borderRadius: BorderRadius.circular(4),
               ),
-              const SizedBox(width: 6),
-              const Text('▼', style: TextStyle(color: kGold, fontSize: 11)),
-            ],
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(
+                assetPath,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    Icon(Icons.person, color: entity.color, size: 30),
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
+                  decoration: ffBox(
+                    borderColor: entity.type == EntityType.npc
+                        ? entity.color
+                        : kCrimsonLight,
+                    bgColor: kDarkBlue,
+                  ),
+                  child: Text(
+                    entity.name.toUpperCase(),
+                    style: TextStyle(
+                      color: entity.type == EntityType.npc
+                          ? entity.color
+                          : kCrimsonLight,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  entity.dialogues.isNotEmpty ? entity.dialogues[line] : '',
+                  style: kBodyStyle,
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      isLast ? '[ B ] Fechar' : '[ A ] Continuar',
+                      style: TextStyle(
+                        color: kGoldDark,
+                        fontSize: 9,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Text(
+                      '▼',
+                      style: TextStyle(color: kGold, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

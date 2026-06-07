@@ -1,10 +1,9 @@
 import '../models/campaign_scene.dart';
+import 'game_assets.dart';
 
 const int h15RegionIndex = 1;
 
-// Troque estes valores por caminhos de assets quando tiver os portraits finais.
-// Exemplo futuro: const kViniPortrait = 'assets/images/portraits/vini.png';
-const String kViniPortrait = '🧑';
+const String kViniPortrait = GameAssets.viniNeutro;
 const String kMagoPortrait = '🧙‍♂️';
 const String kHamburgaoPortrait = '🍔';
 const String kDuendePortrait = '🟢';
