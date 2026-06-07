@@ -449,7 +449,7 @@ class _CombatView extends StatelessWidget {
           child: _MonsterBattleStage(
             regionColor: region.backgroundColor,
             enemyName: enemy.name,
-            enemyEmoji: enemy.assetPath,
+            enemyAssetPath: enemy.assetPath,
             enemyColor: enemy.color,
             enemyHp: enemy.hp,
             enemyMaxHp: enemy.maxHp,
@@ -577,7 +577,7 @@ class _CombatView extends StatelessWidget {
 class _MonsterBattleStage extends StatelessWidget {
   final Color regionColor;
   final String enemyName;
-  final String enemyEmoji;
+  final String enemyAssetPath;
   final Color enemyColor;
   final int enemyHp;
   final int enemyMaxHp;
@@ -592,7 +592,7 @@ class _MonsterBattleStage extends StatelessWidget {
   const _MonsterBattleStage({
     required this.regionColor,
     required this.enemyName,
-    required this.enemyEmoji,
+    required this.enemyAssetPath,
     required this.enemyColor,
     required this.enemyHp,
     required this.enemyMaxHp,
@@ -631,7 +631,7 @@ class _MonsterBattleStage extends StatelessWidget {
             child: _BattleSprite(
               key: ValueKey('enemy-$hitEnemy-$enemyHp'),
               label: enemyName,
-              emoji: enemyEmoji,
+              assetPath: enemyAssetPath,
               color: enemyColor,
               hit: hitEnemy,
               backView: false,
@@ -643,7 +643,7 @@ class _MonsterBattleStage extends StatelessWidget {
             child: _BattleSprite(
               key: ValueKey('player-$hitPlayer-$playerHp'),
               label: playerName,
-              emoji: '🧙',
+              assetPath: 'assets/images/16x32 Idle-Sheet.png',
               color: kGold,
               hit: hitPlayer,
               backView: true,
@@ -697,9 +697,41 @@ class _MonsterBattleStage extends StatelessWidget {
   }
 }
 
+class _SpriteImage extends StatelessWidget {
+  final String assetPath;
+  final String fallbackText;
+  final double size;
+
+  const _SpriteImage({
+    required this.assetPath,
+    required this.fallbackText,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      assetPath,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+
+      errorBuilder: (context, error, stackTrace) {
+        return SizedBox(
+          width: size,
+          height: size,
+          child: Center(
+            child: Text(fallbackText, style: TextStyle(fontSize: size * 0.6)),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _BattleSprite extends StatelessWidget {
   final String label;
-  final String emoji;
+  final String assetPath;
   final Color color;
   final bool hit;
   final bool backView;
@@ -707,7 +739,7 @@ class _BattleSprite extends StatelessWidget {
   const _BattleSprite({
     super.key,
     required this.label,
-    required this.emoji,
+    required this.assetPath,
     required this.color,
     required this.hit,
     required this.backView,
@@ -764,18 +796,10 @@ class _BattleSprite extends StatelessWidget {
                         letterSpacing: 2,
                       ),
                     ),
-                    Text(
-                      backView ? '🧥' : emoji,
-                      style: TextStyle(
-                        fontSize: backView ? 48 : 44,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black.withValues(alpha: 0.45),
-                            offset: const Offset(0, 3),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
+                    _SpriteImage(
+                      assetPath: assetPath,
+                      fallbackText: backView ? '🧥' : assetPath,
+                      size: backView ? 78 : 72,
                     ),
                     if (flashOpacity > 0)
                       Positioned.fill(

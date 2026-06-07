@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 // ── Palette Medieval / Final Fantasy ─────────────────────────────
-const Color kNavy        = Color(0xFF080D1A);
-const Color kDarkBlue    = Color(0xFF111A30);
-const Color kGold        = Color(0xFFC9A84C);
-const Color kGoldLight   = Color(0xFFE8C870);
-const Color kGoldDark    = Color(0xFF7A6020);
-const Color kCrimson     = Color(0xFF8B1A1A);
-const Color kCrimsonLight= Color(0xFFBF3030);
-const Color kParchment   = Color(0xFFE8D5A3);
-const Color kParchmentDim= Color(0xFF9A8A60);
-const Color kGreenHP     = Color(0xFF2E7D32);
-const Color kGreenHPLight= Color(0xFF4CAF50);
-const Color kBlueXP      = Color(0xFF1565C0);
+const Color kNavy = Color(0xFF080D1A);
+const Color kDarkBlue = Color(0xFF111A30);
+const Color kGold = Color(0xFFC9A84C);
+const Color kGoldLight = Color(0xFFE8C870);
+const Color kGoldDark = Color(0xFF7A6020);
+const Color kCrimson = Color(0xFF8B1A1A);
+const Color kCrimsonLight = Color(0xFFBF3030);
+const Color kParchment = Color(0xFFE8D5A3);
+const Color kParchmentDim = Color(0xFF9A8A60);
+const Color kGreenHP = Color(0xFF2E7D32);
+const Color kGreenHPLight = Color(0xFF4CAF50);
+const Color kBlueXP = Color(0xFF1565C0);
 const Color kBlueXPLight = Color(0xFF1E88E5);
-const Color kBorder      = Color(0xFF3A2E10);
+const Color kBorder = Color(0xFF3A2E10);
 
 // ── Text styles ───────────────────────────────────────────────────
 const TextStyle kTitleStyle = TextStyle(
@@ -73,9 +73,15 @@ class FfBar extends StatelessWidget {
       children: [
         SizedBox(
           width: 26,
-          child: Text(label,
-              style: const TextStyle(
-                  color: kGoldDark, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: kGoldDark,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
         ),
         Expanded(
           child: ClipRRect(
@@ -130,6 +136,8 @@ class FfCornerBox extends StatelessWidget {
     );
   }
 
-  Widget _corner() => Text('◆',
-      style: TextStyle(color: borderColor.withValues(alpha: 0.6), fontSize: 7));
+  Widget _corner() => Text(
+    '◆',
+    style: TextStyle(color: borderColor.withValues(alpha: 0.6), fontSize: 7),
+  );
 }

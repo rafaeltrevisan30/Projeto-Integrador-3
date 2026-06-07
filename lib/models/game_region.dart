@@ -43,7 +43,7 @@ List<GameRegion> get gameRegions => [
         name: 'Bug de Sintaxe',
         maxHp: 50,
         xpReward: 25,
-        assetPath: '🐛',
+        assetPath: 'assets/images/refeitorio/refeitorio-bug-sintaxe.png',
         color: const Color(0xFF66BB6A),
         questions: const [
           QuizQuestion(
@@ -77,7 +77,7 @@ List<GameRegion> get gameRegions => [
         name: 'NullPointer',
         maxHp: 70,
         xpReward: 45,
-        assetPath: '👻',
+        assetPath: 'assets/images/refeitorio/refeitorio-nullpointer.png',
         color: const Color(0xFFB0BEC5),
         questions: const [
           QuizQuestion(
@@ -127,7 +127,7 @@ List<GameRegion> get gameRegions => [
         name: 'Loop Infinito',
         maxHp: 80,
         xpReward: 55,
-        assetPath: '🔄',
+        assetPath: 'assets/images/h15/h15-Loop.png',
         color: const Color(0xFF42A5F5),
         questions: const [
           QuizQuestion(
@@ -161,7 +161,7 @@ List<GameRegion> get gameRegions => [
         name: 'Recursão Selvagem',
         maxHp: 100,
         xpReward: 70,
-        assetPath: '🌀',
+        assetPath: 'assets/images/h15/h15-Recursao.png',
         color: const Color(0xFF7E57C2),
         questions: const [
           QuizQuestion(
@@ -212,7 +212,7 @@ List<GameRegion> get gameRegions => [
         name: 'SQL Injection',
         maxHp: 100,
         xpReward: 70,
-        assetPath: '💉',
+        assetPath: 'assets/images/manacas/manacas-SQL_Injection.png',
         color: const Color(0xFFEF5350),
         questions: const [
           QuizQuestion(
@@ -247,7 +247,7 @@ List<GameRegion> get gameRegions => [
         name: 'DeadLock',
         maxHp: 130,
         xpReward: 90,
-        assetPath: '🔒',
+        assetPath: 'assets/images/manacas/manacas-deadlock.png',
         color: const Color(0xFFFF7043),
         questions: const [
           QuizQuestion(
@@ -302,7 +302,7 @@ List<GameRegion> get gameRegions => [
         name: 'Vírus de Rede',
         maxHp: 120,
         xpReward: 85,
-        assetPath: '../../assets/images/virus-rede.png',
+        assetPath: 'assets/images/biblioteca/biblioteca-Virus.png',
         color: const Color(0xFFEF9A9A),
         questions: const [
           QuizQuestion(
@@ -341,7 +341,7 @@ List<GameRegion> get gameRegions => [
         name: 'Firewall Corrompido',
         maxHp: 160,
         xpReward: 110,
-        assetPath: '../../assets/images/firewall-corrompido.png',
+        assetPath: 'assets/images/biblioteca/biblioteca-firewall.png',
         color: const Color(0xFFFFA726),
         questions: const [
           QuizQuestion(
@@ -396,7 +396,7 @@ List<GameRegion> get gameRegions => [
         name: 'Neural Network',
         maxHp: 150,
         xpReward: 110,
-        assetPath: '../../asstes/images/neural-network.png',
+        assetPath: 'assets/images/capela/capela-Neural_Network.png',
         color: const Color(0xFFCE93D8),
         questions: const [
           QuizQuestion(
@@ -435,7 +435,7 @@ List<GameRegion> get gameRegions => [
         name: 'GUARDIÃO FINAL',
         maxHp: 250,
         xpReward: 250,
-        assetPath: '../../assets/images/guardiao-final.png',
+        assetPath: 'assets/images/capela/capela-maligno-luta.png',
         color: const Color(0xFFAB47BC),
         questions: const [
           QuizQuestion(

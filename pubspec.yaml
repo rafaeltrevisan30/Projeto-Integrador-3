@@ -30,3 +30,8 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/images/capela/
+    - assets/images/biblioteca/
+    - assets/images/h15/
+    - assets/images/manacas/
+    - assets/images/refeitorio/
