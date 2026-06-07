@@ -33,7 +33,7 @@ const TextStyle kBodyStyle = TextStyle(
 const TextStyle kDimStyle = TextStyle(
   color: kParchmentDim,
   fontSize: 11,
-  letterSpacing: 1.5,
+  letterSpacing: 1.5, //test 
 );
 
 // ── Shared BoxDecoration builders ─────────────────────────────────
@@ -59,7 +59,7 @@ class FfBar extends StatelessWidget {
 
   const FfBar({
     super.key,
-    required this.label,
+    required this.label, 
     required this.current,
     required this.max,
     required this.color,
