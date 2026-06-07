@@ -33,12 +33,12 @@ const TextStyle kBodyStyle = TextStyle(
 const TextStyle kDimStyle = TextStyle(
   color: kParchmentDim,
   fontSize: 11,
-  letterSpacing: 1.5, //test 
+  letterSpacing: 1.5,
 );
 
 // ── Shared BoxDecoration builders ─────────────────────────────────
 BoxDecoration ffBox({
-  Color borderColor = kGold,
+  Color borderColor = kGold, //test
   Color bgColor = kDarkBlue,
   double width = 2,
 }) {
